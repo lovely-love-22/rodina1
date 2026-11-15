@@ -5,30 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rodina RP ЦО — Юридический ИИ-Помощник и Реестр Прокуратуры</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            slate: {
-              850: '#151e2e',
-              900: '#0f172a',
-              950: '#090d16'
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
+    /* Кастомный скроллбар */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    
+    /* Стили для активных вкладок и погон */
     .tab-active { border-bottom: 2px solid #3b82f6; color: #60a5fa; background: rgba(59, 130, 246, 0.08); }
     .pogon-box { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; display: inline-flex; flex-direction: column; gap: 2px; align-items: center; min-width: 70px; }
     .star { color: #facc15; font-size: 11px; line-height: 1; }
+    
+    /* Кастомные цвета (вместо перезаписи конфига Tailwind) */
+    .bg-slate-950 { background-color: #090d16 !important; }
+    .bg-slate-900 { background-color: #0f172a !important; }
+    .bg-slate-850 { background-color: #151e2e !important; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-200 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
@@ -426,8 +418,19 @@
   <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-700 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50"></div>
 
   <script>
+    // --- БЕЗОПАСНАЯ ЗАГРУЗКА ДАННЫХ ---
+    function safeLoad(key, fallback) {
+      try {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : fallback;
+      } catch (e) {
+        console.warn("Ошибка загрузки " + key, e);
+        return fallback;
+      }
+    }
+
     // EMPLOYEES DEFAULT DATA
-    let employees = JSON.parse(localStorage.getItem('rrp_employees')) || [
+    let employees = safeLoad('rrp_employees', [
       { section: 'gen', num: 1, eng: 'Kiryusha_Lovely', rus: 'Кирюша Ловели', role: 'Генеральный прокурор', rank: 'Государственный советник юстиции 1 класса', vk: 'https://vk.com/id1' },
       { section: 'gen', num: 2, eng: 'Deputy_Gen', rus: 'Заместитель Генпрокурора', role: 'Заместитель генерального прокурора', rank: 'Государственный советник юстиции 2 класса', vk: 'https://vk.com/id2' },
       { section: 'prosecution', num: 3, eng: 'Oleja_Dynasty', rus: 'Олежа Династи', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id3' },
@@ -437,7 +440,7 @@
       { section: 'prosecution', num: 7, eng: 'Scott_Ale', rus: 'Скотт Але', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id7' },
       { section: 'prosecution', num: 8, eng: 'Vetmo_Donk', rus: 'Ветмо Донк', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id8' },
       { section: 'prosecution', num: 9, eng: 'Maks_Chikarev', rus: 'Макс Чикерев', role: 'Академист', rank: 'Академист прокуратуры', vk: 'https://vk.com/id9' }
-    ];
+    ]);
 
     // LAWS & TEMPLATES DATA
     const DEFAULT_LAWS = [
@@ -448,18 +451,22 @@
       { cat: "СПК ЦО", code: "Ст. 25 СПК ЦО", text: "Основания для отказа в принятии искового заявления или жалобы." }
     ];
 
-    let laws = JSON.parse(localStorage.getItem('rrp_laws')) || DEFAULT_LAWS;
-    let templates = JSON.parse(localStorage.getItem('rrp_templates')) || {
+    let laws = safeLoad('rrp_laws', DEFAULT_LAWS);
+    
+    let templates = safeLoad('rrp_templates', {
       prosecutor_decree: "[CENTER]Постановление Генеральной прокуратуры № [Номер]\nГенеральный прокурор: [Имя Фамилия]\n1. [Суть приказа]\nДата: [Дата][/CENTER]",
       prosecutor_response: "[CENTER]Генеральная прокуратура ЦО\nОтвет на обращение №[Номер]\nУСТАНОВИЛ: ...\nПОСТАНОВИЛ: Отказать / Удовлетворить.[/CENTER]",
       lawsuit: "[CENTER]Исковое заявление в Окружной суд №[Номер]\nИстец: [Имя Фамилия][/CENTER]",
       motion: "[CENTER]Ходатайство в суд №[Номер]\nПрошу суд...[/CENTER]"
-    };
-    let historyList = JSON.parse(localStorage.getItem('rrp_history')) || [];
-    let profile = JSON.parse(localStorage.getItem('rrp_profile')) || {
-      name: 'Кирюша Ловели', initials: 'Ловели К.А.', role: 'Генеральный Прокурор Центрального Округа', discord: 'yatochhka', apiKey: '', model: 'gemini-2.5-flash'
-    };
+    });
 
+    let historyList = safeLoad('rrp_history', []);
+    
+    let profile = safeLoad('rrp_profile', {
+      name: 'Кирюша Ловели', initials: 'Ловели К.А.', role: 'Генеральный Прокурор Центрального Округа', discord: 'yatochhka', apiKey: '', model: 'gemini-2.5-flash'
+    });
+
+    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
     window.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
       document.getElementById('doc-date').value = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
@@ -470,18 +477,27 @@
       renderHistory();
     });
 
+    // НАВИГАЦИЯ
     function switchTab(tabName) {
       ['generator', 'employees', 'laws', 'templates', 'history', 'settings'].forEach(t => {
-        document.getElementById(`tab-${t}`).classList.add('hidden');
-        document.getElementById(`nav-${t}`).classList.remove('tab-active', 'text-white');
-        document.getElementById(`nav-${t}`).classList.add('text-slate-400');
+        const tab = document.getElementById(`tab-${t}`);
+        const nav = document.getElementById(`nav-${t}`);
+        if(tab) tab.classList.add('hidden');
+        if(nav) {
+          nav.classList.remove('tab-active', 'text-white');
+          nav.classList.add('text-slate-400');
+        }
       });
-      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      const activeTab = document.getElementById(`tab-${tabName}`);
       const activeNav = document.getElementById(`nav-${tabName}`);
-      activeNav.classList.add('tab-active');
-      activeNav.classList.remove('text-slate-400');
+      if(activeTab) activeTab.classList.remove('hidden');
+      if(activeNav) {
+        activeNav.classList.add('tab-active');
+        activeNav.classList.remove('text-slate-400');
+      }
     }
 
+    // УВЕДОМЛЕНИЯ
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
@@ -489,7 +505,7 @@
       setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
     }
 
-    // POGONI GENERATOR BASED ON RANK
+    // ГЕНЕРАЦИЯ ПОГОН
     function generatePogoniHTML(rank) {
       let stars = 1;
       if (rank.includes('1 класса')) stars = 3;
@@ -510,10 +526,11 @@
       `;
     }
 
-    // EMPLOYEES MANAGEMENT
+    // СОТРУДНИКИ
     function renderEmployees() {
       const genTbody = document.getElementById('gen-prosecutors-tbody');
       const prosTbody = document.getElementById('prosecutors-tbody');
+      if(!genTbody || !prosTbody) return;
 
       const genList = employees.filter(e => e.section === 'gen');
       const prosList = employees.filter(e => e.section === 'prosecution');
@@ -524,14 +541,18 @@
 
     function employeeRowHTML(e, realIdx) {
       const pogon = generatePogoniHTML(e.rank);
-      const vkLink = e.vk.startsWith('http') ? `<a href="${e.vk}" target="_blank" class="text-blue-400 underline">тык</a>` : e.vk;
+      const vkLink = e.vk && e.vk.startsWith('http') ? `<a href="${e.vk}" target="_blank" class="text-blue-400 underline">тык</a>` : (e.vk || '—');
+      
+      // Безопасное экранирование
+      const safe = (str) => String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+
       return `
         <tr class="hover:bg-slate-900/60 transition">
           <td class="p-3 text-center font-bold text-slate-400">${e.num}</td>
-          <td class="p-3 font-mono text-slate-300">${escapeHtml(e.eng)}</td>
-          <td class="p-3 font-semibold text-white">${escapeHtml(e.rus)}</td>
-          <td class="p-3 text-blue-300">${escapeHtml(e.role)}</td>
-          <td class="p-3 text-slate-300">${escapeHtml(e.rank)}</td>
+          <td class="p-3 font-mono text-slate-300">${safe(e.eng)}</td>
+          <td class="p-3 font-semibold text-white">${safe(e.rus)}</td>
+          <td class="p-3 text-blue-300">${safe(e.role)}</td>
+          <td class="p-3 text-slate-300">${safe(e.rank)}</td>
           <td class="p-3 text-center">${pogon}</td>
           <td class="p-3 text-center">${vkLink}</td>
           <td class="p-3 text-right space-x-2">
@@ -604,7 +625,7 @@
       }
     }
 
-    // PROFILE & SETTINGS
+    // ПРОФИЛЬ
     function loadProfileUI() {
       document.getElementById('prof-name').value = profile.name || '';
       document.getElementById('prof-initials').value = profile.initials || '';
@@ -630,12 +651,12 @@
       showToast('✅ Профиль и настройки сохранены!');
     }
 
-    // TEMPLATES & LAWS
+    // ШАБЛОНЫ И ЗАКОНЫ
     function loadTemplatesUI() {
-      document.getElementById('tpl-prosecutor_decree').value = templates.prosecutor_decree;
-      document.getElementById('tpl-prosecutor_response').value = templates.prosecutor_response;
-      document.getElementById('tpl-lawsuit').value = templates.lawsuit;
-      document.getElementById('tpl-motion').value = templates.motion;
+      document.getElementById('tpl-prosecutor_decree').value = templates.prosecutor_decree || '';
+      document.getElementById('tpl-prosecutor_response').value = templates.prosecutor_response || '';
+      document.getElementById('tpl-lawsuit').value = templates.lawsuit || '';
+      document.getElementById('tpl-motion').value = templates.motion || '';
     }
 
     function saveTemplates() {
@@ -667,14 +688,18 @@
       const query = document.getElementById('law-search').value.toLowerCase();
       const catFilter = document.getElementById('law-category-filter').value;
       const filtered = laws.filter(l => (catFilter === 'ALL' || l.cat === catFilter) && (l.code.toLowerCase().includes(query) || l.text.toLowerCase().includes(query)));
+      
       document.getElementById('laws-stats').textContent = `Показано статей: ${filtered.length}`;
+      
+      const safe = (str) => String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+
       document.getElementById('laws-container').innerHTML = filtered.map(l => `
         <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">${escapeHtml(l.cat)}</span>
-            <span class="text-sm font-bold text-white">${escapeHtml(l.code)}</span>
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">${safe(l.cat)}</span>
+            <span class="text-sm font-bold text-white">${safe(l.code)}</span>
           </div>
-          <p class="text-xs text-slate-300">${escapeHtml(l.text)}</p>
+          <p class="text-xs text-slate-300">${safe(l.text)}</p>
         </div>
       `).join('');
     }
@@ -693,25 +718,41 @@
       const cat = document.getElementById('bulk-category').value.trim() || 'Закон';
       const raw = document.getElementById('bulk-text').value.trim();
       if (!raw) return;
-      raw.split(/\n+/).forEach(line => laws.unshift({ cat, code: cat, text: line }));
+      raw.split(/\n+/).forEach(line => {
+        if(line.trim()) laws.unshift({ cat, code: cat, text: line.trim() });
+      });
       localStorage.setItem('rrp_laws', JSON.stringify(laws));
       renderLaws();
       closeBulkModal();
       showToast('✅ Законы добавлены');
     }
 
-    // AI GENERATOR
+    // ГЕНЕРАЦИЯ ИИ
     async function generateDocument() {
-      if (!profile.apiKey) { switchTab('settings'); showToast('⚠️ Укажите Gemini API-ключ!'); return; }
+      if (!profile.apiKey) { 
+        switchTab('settings'); 
+        showToast('⚠️ Укажите Gemini API-ключ!'); 
+        return; 
+      }
       const situation = document.getElementById('situation-input').value.trim();
-      if (!situation) { showToast('⚠️ Опишите ситуацию!'); return; }
+      if (!situation) { 
+        showToast('⚠️ Опишите ситуацию!'); 
+        return; 
+      }
 
       const docType = document.getElementById('doc-type').value;
       const btn = document.getElementById('generate-btn');
       btn.disabled = true;
       btn.innerHTML = `⏳ Генерация...`;
 
-      const prompt = `Ты прокурор Rodina RP ЦО. Сделай BB-код по шаблону для документа №${document.getElementById('doc-number').value}. Ситуация: ${situation}. Автор: ${profile.name}, должность: ${profile.role}. Верни JSON: {"bb_code": "...", "legal_notes": "..."}`;
+      // Получаем выбранный шаблон
+      const activeTemplate = templates[docType] || templates['prosecutor_decree'];
+
+      const prompt = `Ты помощник прокурора Rodina RP ЦО. Твоя задача — составить документ на основе шаблона.
+Шаблон: ${activeTemplate}
+Ситуация: ${situation}
+Автор: ${profile.name}, должность: ${profile.role}.
+Верни строго JSON: {"bb_code": "текст документа с BB-кодом", "legal_notes": "краткое пояснение"}`;
 
       try {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${profile.model}:generateContent?key=${encodeURIComponent(profile.apiKey)}`, {
@@ -719,11 +760,30 @@
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
         });
+        
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        
         const data = await res.json();
-        const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
-        document.getElementById('bb-output').value = parsed.bb_code;
-        document.getElementById('ai-notes-content').textContent = parsed.legal_notes;
+        
+        if (!data.candidates || !data.candidates[0].content.parts[0].text) {
+          throw new Error("Пустой ответ от ИИ");
+        }
+
+        const parsedText = data.candidates[0].content.parts[0].text;
+        let parsed;
+        try {
+          parsed = JSON.parse(parsedText);
+        } catch (e) {
+           // Если ИИ вернул markdown с ```json
+           const jsonMatch = parsedText.match(/```json\n([\s\S]*?)\n```/);
+           if (jsonMatch) parsed = JSON.parse(jsonMatch[1]);
+           else throw new Error("Невалидный JSON от ИИ");
+        }
+
+        document.getElementById('bb-output').value = parsed.bb_code || "Ошибка формата";
+        document.getElementById('ai-notes-content').textContent = parsed.legal_notes || "";
         document.getElementById('ai-notes-box').classList.remove('hidden');
+        
         saveToHistory(docType, document.getElementById('doc-number').value, situation, parsed.bb_code);
         showToast('✅ Готово!');
       } catch (err) {
@@ -735,28 +795,48 @@
     }
 
     function copyBBCode() {
-      navigator.clipboard.writeText(document.getElementById('bb-output').value);
+      const txt = document.getElementById('bb-output').value;
+      if(!txt) return;
+      navigator.clipboard.writeText(txt);
       showToast('📋 Скопировано!');
     }
 
     function saveToHistory(type, num, sit, code) {
-      historyList.unshift({ title: `Документ №${num}`, date: new Date().toLocaleString(), bbCode: code });
+      historyList.unshift({ title: `Документ №${num} (${type})`, date: new Date().toLocaleString(), bbCode: code });
+      if(historyList.length > 50) historyList.pop(); // Храним только 50
       localStorage.setItem('rrp_history', JSON.stringify(historyList));
       renderHistory();
     }
 
     function renderHistory() {
       document.getElementById('history-count').textContent = historyList.length;
-      document.getElementById('history-list').innerHTML = historyList.map((h, i) => `
+      const container = document.getElementById('history-list');
+      if(!container) return;
+      
+      container.innerHTML = historyList.map((h, i) => `
         <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 flex justify-between items-center text-xs">
           <div><strong>${h.title}</strong> <span class="text-slate-500 ml-2">${h.date}</span></div>
-          <button onclick="navigator.clipboard.writeText(historyList[${i}].bbCode); showToast('📋 Скопировано');" class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 rounded">Копировать</button>
+          <div class="flex gap-2">
+            <button onclick="navigator.clipboard.writeText(historyList[${i}].bbCode); showToast('📋 Скопировано');" class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 rounded">Копировать</button>
+            <button onclick="deleteHistory(${i})" class="px-2.5 py-1 bg-rose-600/20 text-rose-400 rounded">Удалить</button>
+          </div>
         </div>
       `).join('');
     }
 
-    function clearHistory() { historyList = []; localStorage.removeItem('rrp_history'); renderHistory(); }
-    function escapeHtml(str) { return String(str).replace(/[&<>"']/g, m => ({ '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' }[m])); }
+    function deleteHistory(idx) {
+      historyList.splice(idx, 1);
+      localStorage.setItem('rrp_history', JSON.stringify(historyList));
+      renderHistory();
+    }
+
+    function clearHistory() { 
+      if(confirm("Очистить всю историю?")) {
+        historyList = []; 
+        localStorage.removeItem('rrp_history'); 
+        renderHistory(); 
+      }
+    }
   </script>
 </body>
 </html>
