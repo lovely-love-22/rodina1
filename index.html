@@ -518,8 +518,8 @@
       const genList = employees.filter(e => e.section === 'gen');
       const prosList = employees.filter(e => e.section === 'prosecution');
 
-      genTbody.innerHTML = genList.map((e, idx) => employeeRowHTML(e, employees.indexOf(e))).join('');
-      prosTbody.innerHTML = prosList.map((e, idx) => employeeRowHTML(e, employees.indexOf(e))).join('');
+      genTbody.innerHTML = genList.map(e => employeeRowHTML(e, employees.indexOf(e))).join('');
+      prosTbody.innerHTML = prosList.map(e => employeeRowHTML(e, employees.indexOf(e))).join('');
     }
 
     function employeeRowHTML(e, realIdx) {
