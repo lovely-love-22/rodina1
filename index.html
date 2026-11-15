@@ -6,18 +6,13 @@
   <title>Rodina RP ЦО — Юридический ИИ-Помощник и Реестр Прокуратуры</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Кастомный скроллбар */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #475569; }
-    
-    /* Стили для активных вкладок и погон */
     .tab-active { border-bottom: 2px solid #3b82f6; color: #60a5fa; background: rgba(59, 130, 246, 0.08); }
     .pogon-box { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; display: inline-flex; flex-direction: column; gap: 2px; align-items: center; min-width: 70px; }
     .star { color: #facc15; font-size: 11px; line-height: 1; }
-    
-    /* Кастомные цвета (вместо перезаписи конфига Tailwind) */
     .bg-slate-950 { background-color: #090d16 !important; }
     .bg-slate-900 { background-color: #0f172a !important; }
     .bg-slate-850 { background-color: #151e2e !important; }
@@ -119,19 +114,19 @@
 
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <label class="block text-xs font-medium text-slate-400">Описание ситуации</label>
+                <label class="block text-xs font-medium text-slate-400">Черновик / Суть ситуации</label>
                 <button type="button" onclick="fillExample()" class="text-xs text-blue-400 hover:text-blue-300 underline">Вставить пример</button>
               </div>
-              <textarea id="situation-input" rows="7" placeholder="Опиши суть нарушения, статьи, фамилии и требования..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 leading-relaxed"></textarea>
+              <textarea id="situation-input" rows="7" placeholder="Напиши от руки, что случилось. ИИ найдет нужные статьи из базы законов и оформит приказ..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 leading-relaxed"></textarea>
             </div>
 
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Доп. указания для ИИ</label>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Доп. указания для ИИ (опционально)</label>
               <input type="text" id="extra-instructions" placeholder="Напр: Отказать из-за отсутствия тайм-кодов" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
             </div>
 
             <button id="generate-btn" onclick="generateDocument()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-900/30 transition flex items-center justify-center gap-2">
-              <span>⚡ Сгенерировать готовый BB-код</span>
+              <span>⚡ Сгенерировать приказ со ссылками на закон</span>
             </button>
 
             <div id="api-warning" class="hidden bg-amber-950/60 border border-amber-700/60 text-amber-200 text-xs p-3 rounded-lg">
@@ -148,7 +143,7 @@
             </div>
             <textarea id="bb-output" rows="18" readonly placeholder="Здесь появится готовый BB-код документа..." class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-xs text-emerald-300 focus:outline-none leading-relaxed"></textarea>
             <div id="ai-notes-box" class="hidden mt-4 bg-slate-950 border border-blue-900/50 rounded-lg p-3.5">
-              <div class="text-xs font-semibold text-blue-400 mb-1">💡 Пояснение ИИ:</div>
+              <div class="text-xs font-semibold text-blue-400 mb-1">💡 Какие статьи применил ИИ:</div>
               <div id="ai-notes-content" class="text-xs text-slate-300 space-y-1"></div>
             </div>
           </div>
@@ -162,14 +157,13 @@
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 class="text-lg font-bold text-white">👥 Реестр сотрудников прокуратуры Центрального Округа</h2>
-            <p class="text-xs text-slate-400">Управление составом, должностями, чинами и погонами (с авто-генерацией погон).</p>
+            <p class="text-xs text-slate-400">Управление составом, должностями, чинами и погонами.</p>
           </div>
           <button onclick="openEmployeeModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition flex items-center gap-1.5 shadow">
             ➕ Добавить сотрудника
           </button>
         </div>
 
-        <!-- Gen Prosecutor Table -->
         <div class="space-y-3">
           <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider border-b border-slate-800 pb-2">Генеральная Прокуратура</h3>
           <div class="overflow-x-auto">
@@ -191,7 +185,6 @@
           </div>
         </div>
 
-        <!-- Prosecutor Table -->
         <div class="space-y-3 pt-4">
           <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider border-b border-slate-800 pb-2">Прокуратура</h3>
           <div class="overflow-x-auto">
@@ -220,8 +213,8 @@
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div>
-            <h2 class="text-lg font-bold text-white">Законодательная база Центрального Округа</h2>
-            <p class="text-xs text-slate-400">Статьи УК, КоАП, ФП, ФЗ о Прокуратуре и СПК для ИИ-помощника.</p>
+            <h2 class="text-lg font-bold text-white">Законодательная база (Контекст для ИИ)</h2>
+            <p class="text-xs text-slate-400">ИИ ищет здесь статьи, чтобы сослаться на них в приказе.</p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button onclick="openBulkModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition">➕ Массовая вставка</button>
@@ -250,7 +243,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 class="text-lg font-bold text-white">Редактор BB-шаблонов форума</h2>
-            <p class="text-xs text-slate-400">Настройка шаблонов постановлений, исков и ответов прокуратуры.</p>
+            <p class="text-xs text-slate-400">Задайте структуру, которую ИИ будет заполнять.</p>
           </div>
           <button onclick="saveTemplates()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">💾 Сохранить</button>
         </div>
@@ -290,30 +283,28 @@
     <section id="tab-settings" class="hidden space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
-          <h2 class="text-lg font-bold text-white">👤 Профиль сотрудника / игрока</h2>
-          <p class="text-xs text-slate-400">Автоматически подставляется в документы ИИ.</p>
+          <h2 class="text-lg font-bold text-white">👤 Профиль сотрудника</h2>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Имя и Фамилия (на русском)</label>
-            <input type="text" id="prof-name" placeholder="Напр: Кирюша Ловели" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+            <label class="block text-xs text-slate-400 mb-1">Имя и Фамилия</label>
+            <input type="text" id="prof-name" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Фамилия и инициалы (для подписи)</label>
-            <input type="text" id="prof-initials" placeholder="Напр: Ловели К.А." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+            <label class="block text-xs text-slate-400 mb-1">Фамилия и инициалы</label>
+            <input type="text" id="prof-initials" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
           </div>
           <div>
             <label class="block text-xs text-slate-400 mb-1">Должность</label>
-            <input type="text" id="prof-role" placeholder="Напр: Генеральный Прокурор Центрального Округа" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+            <input type="text" id="prof-role" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
           </div>
           <div>
             <label class="block text-xs text-slate-400 mb-1">Discord</label>
-            <input type="text" id="prof-discord" placeholder="Напр: yatochhka" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+            <input type="text" id="prof-discord" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
           </div>
           <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">💾 Сохранить профиль</button>
         </div>
 
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
           <h2 class="text-lg font-bold text-white">🔑 Подключение ИИ (Gemini API)</h2>
-          <p class="text-xs text-slate-400 leading-relaxed">Бесплатный ключ от Google AI Studio для работы ИИ-помощника.</p>
           <div>
             <label class="block text-xs text-slate-400 mb-1">Gemini API Key</label>
             <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono" />
@@ -321,14 +312,14 @@
           <div>
             <label class="block text-xs text-slate-400 mb-1">Модель ИИ</label>
             <select id="api-model-select" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Рекомендуется)</option>
-              <option value="gemini-2.5-pro">Gemini 2.5 Pro (Максимальный анализ)</option>
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Быстрая)</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro (Умная)</option>
             </select>
           </div>
-          <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-400 space-y-1">
-            <div>Получить ключ за 30 сек: <a href="https://aistudio.google.com/apikey" target="_blank" class="text-blue-400 underline">aistudio.google.com/apikey</a></div>
+          <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-400">
+            Получить ключ: <a href="https://aistudio.google.com/apikey" target="_blank" class="text-blue-400 underline">aistudio.google.com/apikey</a>
           </div>
-          <button onclick="saveSettings()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">✅ Сохранить настройки ИИ</button>
+          <button onclick="saveSettings()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">✅ Сохранить настройки</button>
         </div>
       </div>
     </section>
@@ -345,14 +336,14 @@
       <input type="hidden" id="emp-edit-idx" value="-1" />
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Отдел / Категория</label>
+          <label class="block text-xs text-slate-400 mb-1">Отдел</label>
           <select id="emp-section" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
             <option value="gen">Генеральная Прокуратура</option>
             <option value="prosecution">Прокуратура</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Индивидуальный номер</label>
+          <label class="block text-xs text-slate-400 mb-1">Номер</label>
           <input type="number" id="emp-number" placeholder="1" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
         </div>
       </div>
@@ -372,7 +363,7 @@
           <input type="text" id="emp-role" placeholder="Генеральный прокурор" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Классный чин</label>
+          <label class="block text-xs text-slate-400 mb-1">Чин</label>
           <select id="emp-rank" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
             <option value="Государственный советник юстиции 1 класса">Государственный советник юстиции 1 класса</option>
             <option value="Государственный советник юстиции 2 класса">Государственный советник юстиции 2 класса</option>
@@ -384,7 +375,7 @@
         </div>
       </div>
       <div>
-        <label class="block text-xs text-slate-400 mb-1">Ссылка на VK (или 'тык')</label>
+        <label class="block text-xs text-slate-400 mb-1">Ссылка на VK</label>
         <input type="text" id="emp-vk" placeholder="https://vk.com/..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
       </div>
       <div class="flex justify-end gap-2 pt-2">
@@ -418,86 +409,55 @@
   <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-700 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50"></div>
 
   <script>
-    // --- БЕЗОПАСНАЯ ЗАГРУЗКА ДАННЫХ ---
+    // --- ДАННЫЕ ---
     function safeLoad(key, fallback) {
-      try {
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : fallback;
-      } catch (e) {
-        console.warn("Ошибка загрузки " + key, e);
-        return fallback;
-      }
+      try { const data = localStorage.getItem(key); return data ? JSON.parse(data) : fallback; } catch (e) { return fallback; }
     }
 
-    // EMPLOYEES DEFAULT DATA
-    let employees = safeLoad('rrp_employees', [
-      { section: 'gen', num: 1, eng: 'Kiryusha_Lovely', rus: 'Кирюша Ловели', role: 'Генеральный прокурор', rank: 'Государственный советник юстиции 1 класса', vk: 'https://vk.com/id1' },
-      { section: 'gen', num: 2, eng: 'Deputy_Gen', rus: 'Заместитель Генпрокурора', role: 'Заместитель генерального прокурора', rank: 'Государственный советник юстиции 2 класса', vk: 'https://vk.com/id2' },
-      { section: 'prosecution', num: 3, eng: 'Oleja_Dynasty', rus: 'Олежа Династи', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id3' },
-      { section: 'prosecution', num: 4, eng: 'Blake_Grasmin', rus: 'Блэйк Грасмин', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id4' },
-      { section: 'prosecution', num: 5, eng: 'Maksim_Lorenzov', rus: 'Максим Лорензов', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id5' },
-      { section: 'prosecution', num: 6, eng: 'Zero_Kurogane', rus: 'Зеро Курегэйн', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id6' },
-      { section: 'prosecution', num: 7, eng: 'Scott_Ale', rus: 'Скотт Але', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id7' },
-      { section: 'prosecution', num: 8, eng: 'Vetmo_Donk', rus: 'Ветмо Донк', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id8' },
-      { section: 'prosecution', num: 9, eng: 'Maks_Chikarev', rus: 'Макс Чикерев', role: 'Академист', rank: 'Академист прокуратуры', vk: 'https://vk.com/id9' }
-    ]);
-
-    // LAWS & TEMPLATES DATA
+    // Начальная законка (будет пополняться через интерфейс)
     const DEFAULT_LAWS = [
+      { cat: "ФЗ О Прокуратуре", code: "Ст. 7.2 ФЗ о Прокуратуре", text: "Генеральный прокурор: руководит деятельностью прокуратуры, издаёт приказы, распоряжения, положения и указания, обязательные для всех сотрудников, назначает и освобождает от должности..." },
+      { cat: "ФЗ О Прокуратуре", code: "Ст. 13.3 ФЗ о Прокуратуре", text: "Генеральный прокурор Центрального округа назначает на должности и освобождает от должностей: Заместителя Генерального прокурора; прокуроров; прокуроров-академистов." },
+      { cat: "ФЗ О Прокуратуре", code: "Ст. 12.1 ФЗ о Прокуратуре", text: "За нарушение служебной дисциплины, неисполнение обязанностей, превышение полномочий... прокурорский работник несёт дисциплинарную, административную, уголовную ответственность." },
       { cat: "УК ЦО", code: "Ст. 1.4 УК ЦО", text: "Убийство гражданского лица. Присуждается 6 уровень розыска." },
-      { cat: "КоАП ЦО", code: "Ст. 1.1 КоАП ЦО", text: "Употребление нецензурной лексики в общественном месте — штраф 15 000 рублей." },
-      { cat: "ФП ЦО", code: "П. 1.1 ФП ЦО", text: "Запрещено нарушать любой документ законодательства, Конституции и устава (Понижение | Выговор | Увольнение)." },
-      { cat: "ФЗ О Прокуратуре", code: "Ст. 5.1 ФЗ о Прокуратуре", text: "Законные требования прокурора обязательны для исполнения всеми органами и гражданами." },
-      { cat: "СПК ЦО", code: "Ст. 25 СПК ЦО", text: "Основания для отказа в принятии искового заявления или жалобы." }
+      { cat: "УК ЦО", code: "Ст. 8.3 УК ЦО", text: "Вооружённое ограбление банка. Присуждается 6 уровень розыска." },
+      { cat: "ФП ЦО", code: "П. 1.1 ФП ЦО", text: "Запрещено нарушать любой документ законодательства, Конституции и устава (Понижение | Выговор | Увольнение)." }
     ];
 
-    let laws = safeLoad('rrp_laws', DEFAULT_LAWS);
-    
-    let templates = safeLoad('rrp_templates', {
-      prosecutor_decree: "[CENTER]Постановление Генеральной прокуратуры № [Номер]\nГенеральный прокурор: [Имя Фамилия]\n1. [Суть приказа]\nДата: [Дата][/CENTER]",
-      prosecutor_response: "[CENTER]Генеральная прокуратура ЦО\nОтвет на обращение №[Номер]\nУСТАНОВИЛ: ...\nПОСТАНОВИЛ: Отказать / Удовлетворить.[/CENTER]",
-      lawsuit: "[CENTER]Исковое заявление в Окружной суд №[Номер]\nИстец: [Имя Фамилия][/CENTER]",
-      motion: "[CENTER]Ходатайство в суд №[Номер]\nПрошу суд...[/CENTER]"
-    });
+    let employees = safeLoad('rrp_employees', [
+      { section: 'gen', num: 1, eng: 'Kiryusha_Lovely', rus: 'Кирюша Ловели', role: 'Генеральный прокурор', rank: 'Государственный советник юстиции 1 класса', vk: 'https://vk.com/id1' }
+    ]);
 
+    let laws = safeLoad('rrp_laws', DEFAULT_LAWS);
+    let templates = safeLoad('rrp_templates', {
+      prosecutor_decree: "[CENTER]Постановление Генеральной прокуратуры № [Номер]\nГенеральный прокурор: [Имя]\n1. [Суть]\nДата: [Дата][/CENTER]",
+      prosecutor_response: "[CENTER]Ответ на обращение №[Номер]\nУСТАНОВИЛ: ...\nПОСТАНОВИЛ: ...[/CENTER]",
+      lawsuit: "[CENTER]Исковое заявление №[Номер]\nИстец: [Имя][/CENTER]",
+      motion: "[CENTER]Ходатайство №[Номер]\nПрошу суд...[/CENTER]"
+    });
     let historyList = safeLoad('rrp_history', []);
-    
     let profile = safeLoad('rrp_profile', {
       name: 'Кирюша Ловели', initials: 'Ловели К.А.', role: 'Генеральный Прокурор Центрального Округа', discord: 'yatochhka', apiKey: '', model: 'gemini-2.5-flash'
     });
 
-    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
+    // --- ИНИЦИАЛИЗАЦИЯ ---
     window.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
       document.getElementById('doc-date').value = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
-      loadProfileUI();
-      loadTemplatesUI();
-      renderEmployees();
-      renderLaws();
-      renderHistory();
+      loadProfileUI(); loadTemplatesUI(); renderEmployees(); renderLaws(); renderHistory();
     });
 
-    // НАВИГАЦИЯ
     function switchTab(tabName) {
       ['generator', 'employees', 'laws', 'templates', 'history', 'settings'].forEach(t => {
-        const tab = document.getElementById(`tab-${t}`);
-        const nav = document.getElementById(`nav-${t}`);
-        if(tab) tab.classList.add('hidden');
-        if(nav) {
-          nav.classList.remove('tab-active', 'text-white');
-          nav.classList.add('text-slate-400');
-        }
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`nav-${t}`).classList.remove('tab-active', 'text-white');
+        document.getElementById(`nav-${t}`).classList.add('text-slate-400');
       });
-      const activeTab = document.getElementById(`tab-${tabName}`);
-      const activeNav = document.getElementById(`nav-${tabName}`);
-      if(activeTab) activeTab.classList.remove('hidden');
-      if(activeNav) {
-        activeNav.classList.add('tab-active');
-        activeNav.classList.remove('text-slate-400');
-      }
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      document.getElementById(`nav-${tabName}`).classList.add('tab-active');
+      document.getElementById(`nav-${tabName}`).classList.remove('text-slate-400');
     }
 
-    // УВЕДОМЛЕНИЯ
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
@@ -505,62 +465,26 @@
       setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
     }
 
-    // ГЕНЕРАЦИЯ ПОГОН
-    function generatePogoniHTML(rank) {
-      let stars = 1;
-      if (rank.includes('1 класса')) stars = 3;
-      else if (rank.includes('2 класса')) stars = 2;
-      else if (rank.includes('3 класса')) stars = 1;
-      else if (rank.includes('Советник')) stars = 3;
-      else if (rank.includes('Младший')) stars = 1;
-      else if (rank.includes('Академист')) stars = 1;
+    // --- УТИЛИТЫ ---
+    function escapeHtml(str) { return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
 
-      let starsHtml = '';
-      for (let i = 0; i < stars; i++) starsHtml += '<span class="star">★</span>';
-
-      return `
-        <div class="pogon-box mx-auto">
-          <div class="flex gap-0.5 justify-center">${starsHtml}</div>
-          <div class="w-full h-1 bg-amber-500/80 rounded-full mt-0.5"></div>
-        </div>
-      `;
-    }
-
-    // СОТРУДНИКИ
+    // --- РЕЕСТР ---
     function renderEmployees() {
       const genTbody = document.getElementById('gen-prosecutors-tbody');
       const prosTbody = document.getElementById('prosecutors-tbody');
-      if(!genTbody || !prosTbody) return;
-
       const genList = employees.filter(e => e.section === 'gen');
       const prosList = employees.filter(e => e.section === 'prosecution');
-
       genTbody.innerHTML = genList.map(e => employeeRowHTML(e, employees.indexOf(e))).join('');
       prosTbody.innerHTML = prosList.map(e => employeeRowHTML(e, employees.indexOf(e))).join('');
     }
 
     function employeeRowHTML(e, realIdx) {
-      const pogon = generatePogoniHTML(e.rank);
+      let stars = 1;
+      if (e.rank.includes('1 класса')) stars = 3; else if (e.rank.includes('2 класса')) stars = 2; else if (e.rank.includes('3 класса')) stars = 1; else if (e.rank.includes('Советник')) stars = 3; else if (e.rank.includes('Младший')) stars = 1; else if (e.rank.includes('Академист')) stars = 1;
+      let starsHtml = ''; for (let i = 0; i < stars; i++) starsHtml += '<span class="star">★</span>';
+      const pogon = `<div class="pogon-box mx-auto"><div class="flex gap-0.5 justify-center">${starsHtml}</div><div class="w-full h-1 bg-amber-500/80 rounded-full mt-0.5"></div></div>`;
       const vkLink = e.vk && e.vk.startsWith('http') ? `<a href="${e.vk}" target="_blank" class="text-blue-400 underline">тык</a>` : (e.vk || '—');
-      
-      // Безопасное экранирование
-      const safe = (str) => String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-
-      return `
-        <tr class="hover:bg-slate-900/60 transition">
-          <td class="p-3 text-center font-bold text-slate-400">${e.num}</td>
-          <td class="p-3 font-mono text-slate-300">${safe(e.eng)}</td>
-          <td class="p-3 font-semibold text-white">${safe(e.rus)}</td>
-          <td class="p-3 text-blue-300">${safe(e.role)}</td>
-          <td class="p-3 text-slate-300">${safe(e.rank)}</td>
-          <td class="p-3 text-center">${pogon}</td>
-          <td class="p-3 text-center">${vkLink}</td>
-          <td class="p-3 text-right space-x-2">
-            <button onclick="editEmployee(${realIdx})" class="text-xs text-blue-400 hover:text-blue-300">✏️</button>
-            <button onclick="deleteEmployee(${realIdx})" class="text-xs text-rose-400 hover:text-rose-300">🗑️</button>
-          </td>
-        </tr>
-      `;
+      return `<tr class="hover:bg-slate-900/60 transition"><td class="p-3 text-center font-bold text-slate-400">${e.num}</td><td class="p-3 font-mono text-slate-300">${escapeHtml(e.eng)}</td><td class="p-3 font-semibold text-white">${escapeHtml(e.rus)}</td><td class="p-3 text-blue-300">${escapeHtml(e.role)}</td><td class="p-3 text-slate-300">${escapeHtml(e.rank)}</td><td class="p-3 text-center">${pogon}</td><td class="p-3 text-center">${vkLink}</td><td class="p-3 text-right space-x-2"><button onclick="editEmployee(${realIdx})" class="text-xs text-blue-400 hover:text-blue-300">✏️</button><button onclick="deleteEmployee(${realIdx})" class="text-xs text-rose-400 hover:text-rose-300">🗑️</button></td></tr>`;
     }
 
     function openEmployeeModal() {
@@ -568,25 +492,18 @@
       document.getElementById('emp-edit-idx').value = '-1';
       document.getElementById('emp-section').value = 'prosecution';
       document.getElementById('emp-number').value = employees.length + 1;
-      document.getElementById('emp-nick-eng').value = '';
-      document.getElementById('emp-nick-rus').value = '';
-      document.getElementById('emp-role').value = 'Прокурор';
-      document.getElementById('emp-rank').value = 'Советник юстиции';
-      document.getElementById('emp-vk').value = 'тык';
+      document.getElementById('emp-nick-eng').value = ''; document.getElementById('emp-nick-rus').value = '';
+      document.getElementById('emp-role').value = 'Прокурор'; document.getElementById('emp-rank').value = 'Советник юстиции'; document.getElementById('emp-vk').value = 'тык';
       document.getElementById('employee-modal').classList.remove('hidden');
     }
 
     function editEmployee(idx) {
       const e = employees[idx];
-      document.getElementById('employee-modal-title').textContent = 'Редактировать сотрудника';
+      document.getElementById('employee-modal-title').textContent = 'Редактировать';
       document.getElementById('emp-edit-idx').value = idx;
-      document.getElementById('emp-section').value = e.section;
-      document.getElementById('emp-number').value = e.num;
-      document.getElementById('emp-nick-eng').value = e.eng;
-      document.getElementById('emp-nick-rus').value = e.rus;
-      document.getElementById('emp-role').value = e.role;
-      document.getElementById('emp-rank').value = e.rank;
-      document.getElementById('emp-vk').value = e.vk;
+      document.getElementById('emp-section').value = e.section; document.getElementById('emp-number').value = e.num;
+      document.getElementById('emp-nick-eng').value = e.eng; document.getElementById('emp-nick-rus').value = e.rus;
+      document.getElementById('emp-role').value = e.role; document.getElementById('emp-rank').value = e.rank; document.getElementById('emp-vk').value = e.vk;
       document.getElementById('employee-modal').classList.remove('hidden');
     }
 
@@ -594,165 +511,105 @@
 
     function saveEmployeeData() {
       const idx = parseInt(document.getElementById('emp-edit-idx').value);
-      const data = {
-        section: document.getElementById('emp-section').value,
-        num: parseInt(document.getElementById('emp-number').value) || 1,
-        eng: document.getElementById('emp-nick-eng').value.trim(),
-        rus: document.getElementById('emp-nick-rus').value.trim(),
-        role: document.getElementById('emp-role').value.trim(),
-        rank: document.getElementById('emp-rank').value,
-        vk: document.getElementById('emp-vk').value.trim()
-      };
-
-      if (idx > -1) {
-        employees[idx] = data;
-      } else {
-        employees.push(data);
-      }
-
+      const data = { section: document.getElementById('emp-section').value, num: parseInt(document.getElementById('emp-number').value) || 1, eng: document.getElementById('emp-nick-eng').value.trim(), rus: document.getElementById('emp-nick-rus').value.trim(), role: document.getElementById('emp-role').value.trim(), rank: document.getElementById('emp-rank').value, vk: document.getElementById('emp-vk').value.trim() };
+      if (idx > -1) employees[idx] = data; else employees.push(data);
       localStorage.setItem('rrp_employees', JSON.stringify(employees));
-      renderEmployees();
-      closeEmployeeModal();
-      showToast('✅ Список сотрудников обновлен!');
+      renderEmployees(); closeEmployeeModal(); showToast('✅ Сохранено!');
     }
 
-    function deleteEmployee(idx) {
-      if (confirm('Удалить сотрудника из реестра?')) {
-        employees.splice(idx, 1);
-        localStorage.setItem('rrp_employees', JSON.stringify(employees));
-        renderEmployees();
-        showToast('Сотрудник удален');
-      }
-    }
+    function deleteEmployee(idx) { if (confirm('Удалить?')) { employees.splice(idx, 1); localStorage.setItem('rrp_employees', JSON.stringify(employees)); renderEmployees(); } }
 
-    // ПРОФИЛЬ
-    function loadProfileUI() {
-      document.getElementById('prof-name').value = profile.name || '';
-      document.getElementById('prof-initials').value = profile.initials || '';
-      document.getElementById('prof-role').value = profile.role || '';
-      document.getElementById('prof-discord').value = profile.discord || '';
-      document.getElementById('api-key-input').value = profile.apiKey || '';
-      document.getElementById('api-model-select').value = profile.model || 'gemini-2.5-flash';
-
-      document.getElementById('display-name').textContent = profile.name || 'Не указано';
-      document.getElementById('display-role').textContent = profile.role || 'Не указано';
-      document.getElementById('display-discord').textContent = profile.discord || '—';
-    }
-
-    function saveSettings() {
-      profile.name = document.getElementById('prof-name').value.trim();
-      profile.initials = document.getElementById('prof-initials').value.trim();
-      profile.role = document.getElementById('prof-role').value.trim();
-      profile.discord = document.getElementById('prof-discord').value.trim();
-      profile.apiKey = document.getElementById('api-key-input').value.trim();
-      profile.model = document.getElementById('api-model-select').value;
-      localStorage.setItem('rrp_profile', JSON.stringify(profile));
-      loadProfileUI();
-      showToast('✅ Профиль и настройки сохранены!');
-    }
-
-    // ШАБЛОНЫ И ЗАКОНЫ
-    function loadTemplatesUI() {
-      document.getElementById('tpl-prosecutor_decree').value = templates.prosecutor_decree || '';
-      document.getElementById('tpl-prosecutor_response').value = templates.prosecutor_response || '';
-      document.getElementById('tpl-lawsuit').value = templates.lawsuit || '';
-      document.getElementById('tpl-motion').value = templates.motion || '';
-    }
-
-    function saveTemplates() {
-      templates.prosecutor_decree = document.getElementById('tpl-prosecutor_decree').value;
-      templates.prosecutor_response = document.getElementById('tpl-prosecutor_response').value;
-      templates.lawsuit = document.getElementById('tpl-lawsuit').value;
-      templates.motion = document.getElementById('tpl-motion').value;
-      localStorage.setItem('rrp_templates', JSON.stringify(templates));
-      showToast('💾 Шаблоны сохранены!');
-    }
-
-    function updateDocHint() {
-      const hints = {
-        prosecutor_decree: 'Оформляется с гербом и пунктами приказа/постановления.',
-        prosecutor_response: 'Официальный ответ с шапкой, УСТАНОВИЛ / ПОСТАНОВИЛ и отказом/одобрением.',
-        lawsuit: 'Исковое заявление в Окружной суд.',
-        motion: 'Ходатайство в Окружной суд.',
-        custom: 'Свободный документ в BB-формате.'
-      };
-      document.getElementById('doc-hint').textContent = hints[document.getElementById('doc-type').value] || '';
-    }
-
-    function fillExample() {
-      document.getElementById('doc-number').value = '104';
-      document.getElementById('situation-input').value = 'Постановление о присвоении специальных классных чинов прокурорским работникам прокуратуры Центрального Округа.';
-    }
-
+    // --- ЗАКОНЫ ---
     function renderLaws() {
       const query = document.getElementById('law-search').value.toLowerCase();
       const catFilter = document.getElementById('law-category-filter').value;
       const filtered = laws.filter(l => (catFilter === 'ALL' || l.cat === catFilter) && (l.code.toLowerCase().includes(query) || l.text.toLowerCase().includes(query)));
-      
       document.getElementById('laws-stats').textContent = `Показано статей: ${filtered.length}`;
-      
-      const safe = (str) => String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-
-      document.getElementById('laws-container').innerHTML = filtered.map(l => `
-        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">${safe(l.cat)}</span>
-            <span class="text-sm font-bold text-white">${safe(l.code)}</span>
-          </div>
-          <p class="text-xs text-slate-300">${safe(l.text)}</p>
-        </div>
-      `).join('');
+      document.getElementById('laws-container').innerHTML = filtered.map(l => `<div class="bg-slate-950 border border-slate-800 rounded-lg p-3"><div class="flex items-center gap-2 mb-1"><span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">${escapeHtml(l.cat)}</span><span class="text-sm font-bold text-white">${escapeHtml(l.code)}</span></div><p class="text-xs text-slate-300">${escapeHtml(l.text)}</p></div>`).join('');
     }
 
-    function resetLawsToDefault() {
-      laws = [...DEFAULT_LAWS];
-      localStorage.setItem('rrp_laws', JSON.stringify(laws));
-      renderLaws();
-      showToast('🔄 База сброшена');
-    }
-
+    function resetLawsToDefault() { laws = [...DEFAULT_LAWS]; localStorage.setItem('rrp_laws', JSON.stringify(laws)); renderLaws(); showToast('🔄 Сброшено'); }
     function openBulkModal() { document.getElementById('bulk-modal').classList.remove('hidden'); }
     function closeBulkModal() { document.getElementById('bulk-modal').classList.add('hidden'); }
-
     function processBulkLaws() {
       const cat = document.getElementById('bulk-category').value.trim() || 'Закон';
       const raw = document.getElementById('bulk-text').value.trim();
       if (!raw) return;
-      raw.split(/\n+/).forEach(line => {
-        if(line.trim()) laws.unshift({ cat, code: cat, text: line.trim() });
-      });
+      raw.split(/\n+/).forEach(line => { if(line.trim()) laws.unshift({ cat, code: cat, text: line.trim() }); });
       localStorage.setItem('rrp_laws', JSON.stringify(laws));
-      renderLaws();
-      closeBulkModal();
-      showToast('✅ Законы добавлены');
+      renderLaws(); closeBulkModal(); showToast('✅ Законы добавлены');
     }
 
-    // ГЕНЕРАЦИЯ ИИ
+    // --- ПРОФИЛЬ ---
+    function loadProfileUI() {
+      document.getElementById('prof-name').value = profile.name || ''; document.getElementById('prof-initials').value = profile.initials || ''; document.getElementById('prof-role').value = profile.role || ''; document.getElementById('prof-discord').value = profile.discord || ''; document.getElementById('api-key-input').value = profile.apiKey || ''; document.getElementById('api-model-select').value = profile.model || 'gemini-2.5-flash';
+      document.getElementById('display-name').textContent = profile.name || 'Не указано'; document.getElementById('display-role').textContent = profile.role || 'Не указано'; document.getElementById('display-discord').textContent = profile.discord || '—';
+    }
+    function saveSettings() {
+      profile.name = document.getElementById('prof-name').value.trim(); profile.initials = document.getElementById('prof-initials').value.trim(); profile.role = document.getElementById('prof-role').value.trim(); profile.discord = document.getElementById('prof-discord').value.trim(); profile.apiKey = document.getElementById('api-key-input').value.trim(); profile.model = document.getElementById('api-model-select').value;
+      localStorage.setItem('rrp_profile', JSON.stringify(profile)); loadProfileUI(); showToast('✅ Сохранено!');
+    }
+
+    // --- ШАБЛОНЫ ---
+    function loadTemplatesUI() {
+      document.getElementById('tpl-prosecutor_decree').value = templates.prosecutor_decree || ''; document.getElementById('tpl-prosecutor_response').value = templates.prosecutor_response || ''; document.getElementById('tpl-lawsuit').value = templates.lawsuit || ''; document.getElementById('tpl-motion').value = templates.motion || '';
+    }
+    function saveTemplates() {
+      templates.prosecutor_decree = document.getElementById('tpl-prosecutor_decree').value; templates.prosecutor_response = document.getElementById('tpl-prosecutor_response').value; templates.lawsuit = document.getElementById('tpl-lawsuit').value; templates.motion = document.getElementById('tpl-motion').value;
+      localStorage.setItem('rrp_templates', JSON.stringify(templates)); showToast('💾 Шаблоны сохранены!');
+    }
+
+    function fillExample() {
+      document.getElementById('doc-number').value = '104';
+      document.getElementById('situation-input').value = 'Я уволил прокурора Олежу Династи за то, что он не вышел на смену и не отвечал в дискорде. Мне нужно оформить это как приказ об увольнении и наказании.';
+    }
+
+    // --- ГЕНЕРАЦИЯ ИИ (С ПОИСКОМ ПО ЗАКОНАМ) ---
     async function generateDocument() {
-      if (!profile.apiKey) { 
-        switchTab('settings'); 
-        showToast('⚠️ Укажите Gemini API-ключ!'); 
-        return; 
-      }
+      if (!profile.apiKey) { switchTab('settings'); showToast('⚠️ Укажите Gemini API-ключ!'); return; }
       const situation = document.getElementById('situation-input').value.trim();
-      if (!situation) { 
-        showToast('⚠️ Опишите ситуацию!'); 
-        return; 
-      }
+      if (!situation) { showToast('⚠️ Опишите ситуацию!'); return; }
 
       const docType = document.getElementById('doc-type').value;
       const btn = document.getElementById('generate-btn');
       btn.disabled = true;
-      btn.innerHTML = `⏳ Генерация...`;
+      btn.innerHTML = `⏳ Поиск статей и генерация...`;
 
-      // Получаем выбранный шаблон
+      // 1. ПОИСК ПО ЗАКОНАМ (Простой поиск по ключевым словам из вашего запроса)
+      const keywords = situation.toLowerCase().replace(/[.,!?]/g, '').split(' ').filter(w => w.length > 3);
+      let relevantLaws = laws.filter(l => {
+        const lawText = (l.code + ' ' + l.text).toLowerCase();
+        return keywords.some(kw => lawText.includes(kw));
+      });
+      
+      // Если ничего не нашли по словам — берем первые 5 статей (чтобы ИИ не галлюцинировал)
+      if (relevantLaws.length === 0) {
+        relevantLaws = laws.slice(0, 5);
+      } else {
+        relevantLaws = relevantLaws.slice(0, 7); // Ограничиваем контекст
+      }
+
+      // Формируем строку с законами для промпта
+      const lawsContext = relevantLaws.map(l => `[${l.cat}] ${l.code}: ${l.text}`).join('\n');
+
+      // 2. БЕРЕМ ШАБЛОН
       const activeTemplate = templates[docType] || templates['prosecutor_decree'];
 
-      const prompt = `Ты помощник прокурора Rodina RP ЦО. Твоя задача — составить документ на основе шаблона.
-Шаблон: ${activeTemplate}
-Ситуация: ${situation}
-Автор: ${profile.name}, должность: ${profile.role}.
-Верни строго JSON: {"bb_code": "текст документа с BB-кодом", "legal_notes": "краткое пояснение"}`;
+      // 3. ФОРМИРУЕМ ПРОМПТ
+      const prompt = `Ты — помощник Генерального прокурора Rodina RP ЦО. Твоя задача — составить идеальный официальный документ (Приказ/Постановление).
+Автор документа: ${profile.name} (${profile.role}).
+Черновик автора: "${situation}".
+Вот релевантные статьи из базы законов, которые ТЫ ОБЯЗАН применить:
+${lawsContext}
+
+Структура документа (BB-код):
+${activeTemplate}
+
+ТРЕБОВАНИЯ:
+1. Оформи документ строго по структуре.
+2. Обязательно сошлись на конкретные статьи из предоставленного списка (например: "На основании Ст. 7.2 ФЗ о Прокуратуре...").
+3. Если автор написал сумбурно — перепиши это официальным, сухим канцелярским языком.
+4. Верни строго JSON: {"bb_code": "текст документа", "applied_laws": "Краткий список примененных статей"}`;
 
       try {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${profile.model}:generateContent?key=${encodeURIComponent(profile.apiKey)}`, {
@@ -761,82 +618,38 @@
           body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
         });
         
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        
+        if (!res.ok) throw new Error(`HTTP Ошибка: ${res.status}`);
         const data = await res.json();
-        
-        if (!data.candidates || !data.candidates[0].content.parts[0].text) {
-          throw new Error("Пустой ответ от ИИ");
-        }
+        if (!data.candidates || !data.candidates[0].content.parts[0].text) throw new Error("Пустой ответ");
 
         const parsedText = data.candidates[0].content.parts[0].text;
         let parsed;
         try {
           parsed = JSON.parse(parsedText);
         } catch (e) {
-           // Если ИИ вернул markdown с ```json
            const jsonMatch = parsedText.match(/```json\n([\s\S]*?)\n```/);
-           if (jsonMatch) parsed = JSON.parse(jsonMatch[1]);
-           else throw new Error("Невалидный JSON от ИИ");
+           if (jsonMatch) parsed = JSON.parse(jsonMatch[1]); else throw new Error("Невалидный JSON");
         }
 
-        document.getElementById('bb-output').value = parsed.bb_code || "Ошибка формата";
-        document.getElementById('ai-notes-content').textContent = parsed.legal_notes || "";
+        document.getElementById('bb-output').value = parsed.bb_code || "Ошибка";
+        document.getElementById('ai-notes-content').innerHTML = `<span class="text-emerald-400 font-bold">Статьи:</span> ${parsed.applied_laws || "Не указаны"}`;
         document.getElementById('ai-notes-box').classList.remove('hidden');
         
         saveToHistory(docType, document.getElementById('doc-number').value, situation, parsed.bb_code);
-        showToast('✅ Готово!');
+        showToast('✅ Приказ готов!');
       } catch (err) {
         alert('Ошибка ИИ: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '⚡ Сгенерировать готовый BB-код';
+        btn.innerHTML = '⚡ Сгенерировать приказ со ссылками на закон';
       }
     }
 
-    function copyBBCode() {
-      const txt = document.getElementById('bb-output').value;
-      if(!txt) return;
-      navigator.clipboard.writeText(txt);
-      showToast('📋 Скопировано!');
-    }
-
-    function saveToHistory(type, num, sit, code) {
-      historyList.unshift({ title: `Документ №${num} (${type})`, date: new Date().toLocaleString(), bbCode: code });
-      if(historyList.length > 50) historyList.pop(); // Храним только 50
-      localStorage.setItem('rrp_history', JSON.stringify(historyList));
-      renderHistory();
-    }
-
-    function renderHistory() {
-      document.getElementById('history-count').textContent = historyList.length;
-      const container = document.getElementById('history-list');
-      if(!container) return;
-      
-      container.innerHTML = historyList.map((h, i) => `
-        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 flex justify-between items-center text-xs">
-          <div><strong>${h.title}</strong> <span class="text-slate-500 ml-2">${h.date}</span></div>
-          <div class="flex gap-2">
-            <button onclick="navigator.clipboard.writeText(historyList[${i}].bbCode); showToast('📋 Скопировано');" class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 rounded">Копировать</button>
-            <button onclick="deleteHistory(${i})" class="px-2.5 py-1 bg-rose-600/20 text-rose-400 rounded">Удалить</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function deleteHistory(idx) {
-      historyList.splice(idx, 1);
-      localStorage.setItem('rrp_history', JSON.stringify(historyList));
-      renderHistory();
-    }
-
-    function clearHistory() { 
-      if(confirm("Очистить всю историю?")) {
-        historyList = []; 
-        localStorage.removeItem('rrp_history'); 
-        renderHistory(); 
-      }
-    }
+    function copyBBCode() { navigator.clipboard.writeText(document.getElementById('bb-output').value); showToast('📋 Скопировано!'); }
+    function saveToHistory(type, num, sit, code) { historyList.unshift({ title: `Документ №${num}`, date: new Date().toLocaleString(), bbCode: code }); if(historyList.length > 50) historyList.pop(); localStorage.setItem('rrp_history', JSON.stringify(historyList)); renderHistory(); }
+    function renderHistory() { document.getElementById('history-count').textContent = historyList.length; document.getElementById('history-list').innerHTML = historyList.map((h, i) => `<div class="bg-slate-950 border border-slate-800 rounded-lg p-3 flex justify-between items-center text-xs"><div><strong>${h.title}</strong> <span class="text-slate-500 ml-2">${h.date}</span></div><div class="flex gap-2"><button onclick="navigator.clipboard.writeText(historyList[${i}].bbCode); showToast('📋 Скопировано');" class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 rounded">Копировать</button><button onclick="deleteHistory(${i})" class="px-2.5 py-1 bg-rose-600/20 text-rose-400 rounded">Удалить</button></div></div>`).join(''); }
+    function deleteHistory(idx) { historyList.splice(idx, 1); localStorage.setItem('rrp_history', JSON.stringify(historyList)); renderHistory(); }
+    function clearHistory() { if(confirm("Очистить?")) { historyList = []; localStorage.removeItem('rrp_history'); renderHistory(); } }
   </script>
 </body>
 </html>
