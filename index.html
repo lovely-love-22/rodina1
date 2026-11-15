@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rodina RP ЦО — Юридический ИИ-Помощник и База Законов</title>
+  <title>Rodina RP ЦО — Юридический ИИ-Помощник и Реестр Прокуратуры</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -27,6 +27,8 @@
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #475569; }
     .tab-active { border-bottom: 2px solid #3b82f6; color: #60a5fa; background: rgba(59, 130, 246, 0.08); }
+    .pogon-box { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; display: inline-flex; flex-direction: column; gap: 2px; align-items: center; min-width: 70px; }
+    .star { color: #facc15; font-size: 11px; line-height: 1; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-200 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
@@ -40,26 +42,29 @@
         </div>
         <div>
           <h1 class="text-lg font-bold text-white leading-tight">Rodina RP ЦО • Legal AI</h1>
-          <p class="text-xs text-slate-400">Законодательная база Центрального Округа & ИИ-Генератор BB-кодов</p>
+          <p class="text-xs text-slate-400">Прокуратура Центрального Округа & Реестр & ИИ</p>
         </div>
       </div>
 
       <!-- NAVIGATION -->
-      <nav class="flex items-center gap-1 bg-slate-950/60 p-1 rounded-lg border border-slate-800">
-        <button onclick="switchTab('generator')" id="nav-generator" class="px-3 py-1.5 rounded-md text-sm font-medium transition tab-active">
+      <nav class="flex items-center gap-1 bg-slate-950/60 p-1 rounded-lg border border-slate-800 overflow-x-auto">
+        <button onclick="switchTab('generator')" id="nav-generator" class="px-3 py-1.5 rounded-md text-sm font-medium transition tab-active whitespace-nowrap">
           🤖 ИИ-Генератор
         </button>
-        <button onclick="switchTab('laws')" id="nav-laws" class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-400 hover:text-white transition">
-          📚 База законов
+        <button onclick="switchTab('employees')" id="nav-employees" class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-400 hover:text-white transition whitespace-nowrap">
+          👥 Сотрудники
         </button>
-        <button onclick="switchTab('templates')" id="nav-templates" class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-400 hover:text-white transition">
+        <button onclick="switchTab('laws')" id="nav-laws" class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-400 hover:text-white transition whitespace-nowrap">
+          📚 Законы
+        </button>
+        <button onclick="switchTab('templates')" id="nav-templates" class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-400 hover:text-white transition whitespace-nowrap">
           📝 Шаблоны BB
         </button>
-        <button onclick="switchTab('history')" id="nav-history" class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-400 hover:text-white transition">
+        <button onclick="switchTab('history')" id="nav-history" class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-400 hover:text-white transition whitespace-nowrap">
           🕒 История (<span id="history-count">0</span>)
         </button>
-        <button onclick="switchTab('settings')" id="nav-settings" class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-400 hover:text-white transition">
-          ⚙️ Настройки & Профиль
+        <button onclick="switchTab('settings')" id="nav-settings" class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-400 hover:text-white transition whitespace-nowrap">
+          ⚙️ Профиль
         </button>
       </nav>
     </div>
@@ -70,11 +75,10 @@
 
     <!-- ================= TAB 1: AI GENERATOR ================= -->
     <section id="tab-generator" class="space-y-6">
-      <!-- Quick Profile Bar -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-4 text-sm">
           <div>
-            <span class="text-slate-400">Сотрудник/Заявитель:</span>
+            <span class="text-slate-400">Сотрудник:</span>
             <strong id="display-name" class="text-white ml-1">Не указано</strong>
           </div>
           <span class="text-slate-700">|</span>
@@ -94,12 +98,9 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- LEFT COLUMN: INPUT -->
         <div class="lg:col-span-5 space-y-4">
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
-            <h2 class="text-base font-semibold text-white flex items-center gap-2">
-              <span>1. Параметры документа</span>
-            </h2>
+            <h2 class="text-base font-semibold text-white">1. Параметры документа</h2>
 
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1.5">Тип документа (BB-шаблон)</label>
@@ -110,35 +111,31 @@
                 <option value="motion">Ходатайство в Окружной суд ЦО</option>
                 <option value="custom">Свободный юридический документ (Рапорт / Представление)</option>
               </select>
-              <p id="doc-hint" class="text-xs text-slate-400 mt-1.5">
-                Оформляется с гербом Генеральной прокуратуры ЦО и пунктами приказа/постановления.
-              </p>
+              <p id="doc-hint" class="text-xs text-slate-400 mt-1.5">Оформляется с гербом Генеральной прокуратуры ЦО и пунктами приказа/постановления.</p>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Номер документа / обращения</label>
-                <input type="text" id="doc-number" placeholder="Напр: 2102 или 458" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
+                <label class="block text-xs font-medium text-slate-400 mb-1">Номер документа</label>
+                <input type="text" id="doc-number" placeholder="Напр: 2102" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
               </div>
               <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Дата (по умолчанию сегодня)</label>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Дата</label>
                 <input type="text" id="doc-date" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
               </div>
             </div>
 
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <label class="block text-xs font-medium text-slate-400">Описание ситуации (своими словами)</label>
-                <button type="button" onclick="fillExample()" class="text-xs text-blue-400 hover:text-blue-300 underline">
-                  Вставить пример
-                </button>
+                <label class="block text-xs font-medium text-slate-400">Описание ситуации</label>
+                <button type="button" onclick="fillExample()" class="text-xs text-blue-400 hover:text-blue-300 underline">Вставить пример</button>
               </div>
-              <textarea id="situation-input" rows="7" placeholder="Опиши кто, когда, где и что нарушил, какие есть доказательства, номер обращения или кого нужно привлечь к ответственности..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 leading-relaxed"></textarea>
+              <textarea id="situation-input" rows="7" placeholder="Опиши суть нарушения, статьи, фамилии и требования..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 leading-relaxed"></textarea>
             </div>
 
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Доп. указания для ИИ (необязательно)</label>
-              <input type="text" id="extra-instructions" placeholder="Напр: Отказать из-за отсутствия тайм-кодов / Выдать выговор по 1.1 ФП" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
+              <label class="block text-xs font-medium text-slate-400 mb-1">Доп. указания для ИИ</label>
+              <input type="text" id="extra-instructions" placeholder="Напр: Отказать из-за отсутствия тайм-кодов" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
             </div>
 
             <button id="generate-btn" onclick="generateDocument()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-900/30 transition flex items-center justify-center gap-2">
@@ -146,28 +143,20 @@
             </button>
 
             <div id="api-warning" class="hidden bg-amber-950/60 border border-amber-700/60 text-amber-200 text-xs p-3 rounded-lg">
-              ⚠️ Не указан API-ключ Gemini. Перейдите во вкладку <strong>«Настройки & Профиль»</strong> и вставьте бесплатный ключ от Google AI Studio, чтобы ИИ заработал локально/на GitHub.
+              ⚠️ Не указан API-ключ Gemini. Перейдите во вкладку <strong>«Профиль»</strong> и вставьте бесплатный ключ.
             </div>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: OUTPUT -->
         <div class="lg:col-span-7 flex flex-col">
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex-1 flex flex-col shadow-xl">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-              <h2 class="text-base font-semibold text-white">2. Готовый BB-код для форума Rodina RP</h2>
-              <div class="flex items-center gap-2">
-                <button onclick="copyBBCode()" id="copy-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
-                  <span>📋 Копировать код</span>
-                </button>
-              </div>
+              <h2 class="text-base font-semibold text-white">2. Готовый BB-код для форума</h2>
+              <button onclick="copyBBCode()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition shadow">📋 Копировать код</button>
             </div>
-
-            <textarea id="bb-output" rows="18" readonly placeholder="Здесь появится готовый BB-код документа. Просто скопируй его и вставь на форум..." class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-xs text-emerald-300 focus:outline-none leading-relaxed"></textarea>
-
-            <!-- AI Legal Analysis Box -->
+            <textarea id="bb-output" rows="18" readonly placeholder="Здесь появится готовый BB-код документа..." class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-xs text-emerald-300 focus:outline-none leading-relaxed"></textarea>
             <div id="ai-notes-box" class="hidden mt-4 bg-slate-950 border border-blue-900/50 rounded-lg p-3.5">
-              <div class="text-xs font-semibold text-blue-400 mb-1">💡 Пояснение ИИ (подобранные статьи ЦО):</div>
+              <div class="text-xs font-semibold text-blue-400 mb-1">💡 Пояснение ИИ:</div>
               <div id="ai-notes-content" class="text-xs text-slate-300 space-y-1"></div>
             </div>
           </div>
@@ -175,84 +164,126 @@
       </div>
     </section>
 
-    <!-- ================= TAB 2: LAWS DATABASE ================= -->
+    <!-- ================= TAB 2: EMPLOYEES REGISTRY ================= -->
+    <section id="tab-employees" class="hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">👥 Реестр сотрудников прокуратуры Центрального Округа</h2>
+            <p class="text-xs text-slate-400">Управление составом, должностями, чинами и погонами (с авто-генерацией погон).</p>
+          </div>
+          <button onclick="openEmployeeModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition flex items-center gap-1.5 shadow">
+            ➕ Добавить сотрудника
+          </button>
+        </div>
+
+        <!-- Gen Prosecutor Table -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider border-b border-slate-800 pb-2">Генеральная Прокуратура</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-950 text-slate-400 border-b border-slate-800">
+                  <th class="p-3 w-12 text-center">№</th>
+                  <th class="p-3">Nick_Name (Engl)</th>
+                  <th class="p-3">Nick_Name (Рус)</th>
+                  <th class="p-3">Должность</th>
+                  <th class="p-3">Чин</th>
+                  <th class="p-3 text-center">Погоны</th>
+                  <th class="p-3 text-center">VK / Связь</th>
+                  <th class="p-3 text-right">Действия</th>
+                </tr>
+              </thead>
+              <tbody id="gen-prosecutors-tbody" class="divide-y divide-slate-800/60"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Prosecutor Table -->
+        <div class="space-y-3 pt-4">
+          <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider border-b border-slate-800 pb-2">Прокуратура</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-950 text-slate-400 border-b border-slate-800">
+                  <th class="p-3 w-12 text-center">№</th>
+                  <th class="p-3">Nick_Name (Engl)</th>
+                  <th class="p-3">Nick_Name (Рус)</th>
+                  <th class="p-3">Должность</th>
+                  <th class="p-3">Чин</th>
+                  <th class="p-3 text-center">Погоны</th>
+                  <th class="p-3 text-center">VK / Связь</th>
+                  <th class="p-3 text-right">Действия</th>
+                </tr>
+              </thead>
+              <tbody id="prosecutors-tbody" class="divide-y divide-slate-800/60"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: LAWS DATABASE ================= -->
     <section id="tab-laws" class="hidden space-y-5">
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div>
             <h2 class="text-lg font-bold text-white">Законодательная база Центрального Округа</h2>
-            <p class="text-xs text-slate-400">Все статьи из этого списка автоматически передаются ИИ-помощнику для точной квалификации нарушений.</p>
+            <p class="text-xs text-slate-400">Статьи УК, КоАП, ФП, ФЗ о Прокуратуре и СПК для ИИ-помощника.</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button onclick="openBulkModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition">
-              ➕ Массовая вставка законов
-            </button>
-            <button onclick="resetLawsToDefault()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg border border-slate-700 transition">
-              🔄 Сбросить к базе ЦО
-            </button>
+            <button onclick="openBulkModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition">➕ Массовая вставка</button>
+            <button onclick="resetLawsToDefault()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg border border-slate-700 transition">🔄 Сбросить</button>
           </div>
         </div>
-
-        <!-- Filters -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-          <input type="text" id="law-search" oninput="renderLaws()" placeholder="🔍 Поиск по номеру статьи или ключевому слову..." class="md:col-span-2 bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
+          <input type="text" id="law-search" oninput="renderLaws()" placeholder="🔍 Поиск по статье или слову..." class="md:col-span-2 bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
           <select id="law-category-filter" onchange="renderLaws()" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-            <option value="ALL">Все кодексы и законы</option>
-            <option value="УК ЦО">Уголовный Кодекс (УК ЦО)</option>
-            <option value="КоАП ЦО">Кодекс об административных правонарушениях (КоАП ЦО)</option>
-            <option value="ФП ЦО">Федеральное постановление (ФП ЦО)</option>
-            <option value="ФЗ О Прокуратуре">ФЗ «О Прокуратуре Центрального Округа»</option>
-            <option value="СПК ЦО">Судебно-процессуальный кодекс (СПК ЦО)</option>
-            <option value="Конституция ЦО">Конституция Центрального Округа</option>
-            <option value="ТК ЦО">Трудовой Кодекс (ТК ЦО)</option>
+            <option value="ALL">Все законы</option>
+            <option value="УК ЦО">Уголовный Кодекс</option>
+            <option value="КоАП ЦО">КоАП ЦО</option>
+            <option value="ФП ЦО">Федеральное постановление</option>
+            <option value="ФЗ О Прокуратуре">ФЗ о Прокуратуре</option>
+            <option value="СПК ЦО">Судебно-процессуальный кодекс</option>
           </select>
         </div>
-
         <div id="laws-stats" class="text-xs text-slate-400 mb-3"></div>
-
-        <!-- Laws List -->
         <div id="laws-container" class="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1"></div>
       </div>
     </section>
 
-    <!-- ================= TAB 3: BB TEMPLATES ================= -->
+    <!-- ================= TAB 4: BB TEMPLATES ================= -->
     <section id="tab-templates" class="hidden space-y-5">
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 class="text-lg font-bold text-white">Редактор BB-шаблонов форума</h2>
-            <p class="text-xs text-slate-400">ИИ строго придерживается структуры выбранного шаблона при генерации документа.</p>
+            <p class="text-xs text-slate-400">Настройка шаблонов постановлений, исков и ответов прокуратуры.</p>
           </div>
-          <button onclick="saveTemplates()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
-            💾 Сохранить шаблоны
-          </button>
+          <button onclick="saveTemplates()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">💾 Сохранить</button>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-slate-950 border border-slate-800 rounded-lg p-3.5 space-y-2">
-            <label class="block text-xs font-bold text-blue-400">1. Постановление / Протест / Предписание Ген. прокуратуры</label>
+            <label class="block text-xs font-bold text-blue-400">1. Постановление / Предписание Ген. прокуратуры</label>
             <textarea id="tpl-prosecutor_decree" rows="11" class="w-full bg-slate-900 border border-slate-700 rounded p-2.5 font-mono text-xs text-slate-200"></textarea>
           </div>
-
           <div class="bg-slate-950 border border-slate-800 rounded-lg p-3.5 space-y-2">
-            <label class="block text-xs font-bold text-blue-400">2. Ответ / Отказ на обращение в Прокуратуру ЦО</label>
+            <label class="block text-xs font-bold text-blue-400">2. Ответ / Отказ на обращение в Прокуратуру</label>
             <textarea id="tpl-prosecutor_response" rows="11" class="w-full bg-slate-900 border border-slate-700 rounded p-2.5 font-mono text-xs text-slate-200"></textarea>
           </div>
-
           <div class="bg-slate-950 border border-slate-800 rounded-lg p-3.5 space-y-2">
-            <label class="block text-xs font-bold text-blue-400">3. Исковое заявление в Окружной суд ЦО</label>
+            <label class="block text-xs font-bold text-blue-400">3. Исковое заявление в Окружной суд</label>
             <textarea id="tpl-lawsuit" rows="11" class="w-full bg-slate-900 border border-slate-700 rounded p-2.5 font-mono text-xs text-slate-200"></textarea>
           </div>
-
           <div class="bg-slate-950 border border-slate-800 rounded-lg p-3.5 space-y-2">
-            <label class="block text-xs font-bold text-blue-400">4. Ходатайство в Окружной суд ЦО</label>
+            <label class="block text-xs font-bold text-blue-400">4. Ходатайство в Окружной суд</label>
             <textarea id="tpl-motion" rows="11" class="w-full bg-slate-900 border border-slate-700 rounded p-2.5 font-mono text-xs text-slate-200"></textarea>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= TAB 4: HISTORY ================= -->
+    <!-- ================= TAB 5: HISTORY ================= -->
     <section id="tab-history" class="hidden space-y-4">
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
         <div class="flex items-center justify-between mb-4">
@@ -263,277 +294,184 @@
       </div>
     </section>
 
-    <!-- ================= TAB 5: SETTINGS & PROFILE ================= -->
+    <!-- ================= TAB 6: SETTINGS & PROFILE ================= -->
     <section id="tab-settings" class="hidden space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Profile Card -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
           <h2 class="text-lg font-bold text-white">👤 Профиль сотрудника / игрока</h2>
-          <p class="text-xs text-slate-400">Эти данные автоматически подставляются ИИ в шапки и подписи всех документов.</p>
-
+          <p class="text-xs text-slate-400">Автоматически подставляется в документы ИИ.</p>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Имя и Фамилия (Игровой ник на русском)</label>
+            <label class="block text-xs text-slate-400 mb-1">Имя и Фамилия (на русском)</label>
             <input type="text" id="prof-name" placeholder="Напр: Кирюша Ловели" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
           </div>
-
           <div>
             <label class="block text-xs text-slate-400 mb-1">Фамилия и инициалы (для подписи)</label>
             <input type="text" id="prof-initials" placeholder="Напр: Ловели К.А." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
           </div>
-
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Должность / Звание</label>
+            <label class="block text-xs text-slate-400 mb-1">Должность</label>
             <input type="text" id="prof-role" placeholder="Напр: Генеральный Прокурор Центрального Округа" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
           </div>
-
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Электронная почта (Discord)</label>
-            <input type="text" id="prof-discord" placeholder="Напр: yatochhka или stresss#9804" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+            <label class="block text-xs text-slate-400 mb-1">Discord</label>
+            <input type="text" id="prof-discord" placeholder="Напр: yatochhka" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
           </div>
-
-          <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">
-            💾 Сохранить профиль
-          </button>
+          <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">💾 Сохранить профиль</button>
         </div>
 
-        <!-- API Settings Card -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
           <h2 class="text-lg font-bold text-white">🔑 Подключение ИИ (Gemini API)</h2>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Чтобы ИИ-помощник работал на твоём компьютере или на GitHub Pages, нужен бесплатный API-ключ от Google AI Studio. Ключ хранится <strong>только в твоём браузере (localStorage)</strong> и никуда не передаётся.
-          </p>
-
+          <p class="text-xs text-slate-400 leading-relaxed">Бесплатный ключ от Google AI Studio для работы ИИ-помощника.</p>
           <div>
             <label class="block text-xs text-slate-400 mb-1">Gemini API Key</label>
             <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono" />
           </div>
-
           <div>
             <label class="block text-xs text-slate-400 mb-1">Модель ИИ</label>
             <select id="api-model-select" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Рекомендуется — быстро и точно)</option>
-              <option value="gemini-2.5-pro">Gemini 2.5 Pro (Максимальный юридический анализ)</option>
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Рекомендуется)</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro (Максимальный анализ)</option>
             </select>
           </div>
-
           <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-400 space-y-1">
-            <div class="font-semibold text-slate-200">Как получить бесплатный ключ за 30 секунд:</div>
-            <ol class="list-decimal list-inside space-y-1">
-              <li>Зайди на <a href="https://aistudio.google.com/apikey" target="_blank" class="text-blue-400 underline">aistudio.google.com/apikey</a></li>
-              <li>Нажми <strong>«Create API key»</strong></li>
-              <li>Скопируй ключ и вставь в поле выше</li>
-            </ol>
+            <div>Получить ключ за 30 сек: <a href="https://aistudio.google.com/apikey" target="_blank" class="text-blue-400 underline">aistudio.google.com/apikey</a></div>
           </div>
-
-          <button onclick="saveSettings()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">
-            ✅ Сохранить настройки ИИ
-          </button>
+          <button onclick="saveSettings()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">✅ Сохранить настройки ИИ</button>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- MODAL: BULK ADD LAWS -->
+  <!-- MODAL: ADD/EDIT EMPLOYEE -->
+  <div id="employee-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-xl max-w-lg w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 id="employee-modal-title" class="text-base font-bold text-white">Добавить сотрудника</h3>
+        <button onclick="closeEmployeeModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <input type="hidden" id="emp-edit-idx" value="-1" />
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Отдел / Категория</label>
+          <select id="emp-section" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+            <option value="gen">Генеральная Прокуратура</option>
+            <option value="prosecution">Прокуратура</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Индивидуальный номер</label>
+          <input type="number" id="emp-number" placeholder="1" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Nick_Name (Engl)</label>
+          <input type="text" id="emp-nick-eng" placeholder="Kiryusha_Lovely" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Nick_Name (Рус)</label>
+          <input type="text" id="emp-nick-rus" placeholder="Кирюша Ловели" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Должность</label>
+          <input type="text" id="emp-role" placeholder="Генеральный прокурор" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Классный чин</label>
+          <select id="emp-rank" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+            <option value="Государственный советник юстиции 1 класса">Государственный советник юстиции 1 класса</option>
+            <option value="Государственный советник юстиции 2 класса">Государственный советник юстиции 2 класса</option>
+            <option value="Государственный советник юстиции 3 класса">Государственный советник юстиции 3 класса</option>
+            <option value="Советник юстиции">Советник юстиции</option>
+            <option value="Младший советник юстиции">Младший советник юстиции</option>
+            <option value="Академист прокуратуры">Академист прокуратуры</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">Ссылка на VK (или 'тык')</label>
+        <input type="text" id="emp-vk" placeholder="https://vk.com/..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeEmployeeModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-xs text-slate-300">Отмена</button>
+        <button onclick="saveEmployeeData()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BULK LAWS -->
   <div id="bulk-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-xl max-w-2xl w-full p-5 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-white">Массовая загрузка законов с форума</h3>
+        <h3 class="text-base font-bold text-white">Массовая загрузка законов</h3>
         <button onclick="closeBulkModal()" class="text-slate-400 hover:text-white">✕</button>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-xs text-slate-400 mb-1">Категория / Кодекс</label>
-          <input type="text" id="bulk-category" placeholder="Напр: Устав ГУВД или ФЗ о Полиции" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
-        </div>
-        <div class="flex items-end">
-          <p class="text-xs text-slate-400">Каждая статья/пункт с новой строки автоматически добавится в базу.</p>
+          <input type="text" id="bulk-category" placeholder="Напр: Уголовный Кодекс" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
         </div>
       </div>
-      <textarea id="bulk-text" rows="10" placeholder="Вставь сюда скопированный текст законов с форума..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white font-mono"></textarea>
+      <textarea id="bulk-text" rows="10" placeholder="Вставьте текст статей с новой строки..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white font-mono"></textarea>
       <div class="flex justify-end gap-2">
         <button onclick="closeBulkModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-xs text-slate-300">Отмена</button>
-        <button onclick="processBulkLaws()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white">Добавить в базу</button>
+        <button onclick="processBulkLaws()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white">Добавить</button>
       </div>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-700 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50"></div>
 
   <script>
-    // =========================================================================
-    // 1. ВШИТАЯ ЗАКОНОДАТЕЛЬНАЯ БАЗА ЦЕНТРАЛЬНОГО ОКРУГА (RODINA RP)
-    // =========================================================================
-    const DEFAULT_LAWS = [
-      // --- КоАП ЦО ---
-      { cat: "КоАП ЦО", code: "Ст. 1.1 КоАП ЦО", text: "Употребление нецензурной лексики, оскорбительных выражений или унижающих человеческое достоинство высказываний в общественном месте – штраф 15 000 рублей." },
-      { cat: "КоАП ЦО", code: "Ст. 2.1 КоАП ЦО", text: "Курение в общественных местах — штраф 5 000 рублей." },
-      { cat: "КоАП ЦО", code: "Ст. 2.2 КоАП ЦО", text: "Распитие спиртных напитков в общественных местах, за исключением специально отведённых для этого зон - штраф 15 000 рублей." },
-      { cat: "КоАП ЦО", code: "Ст. 2.3 КоАП ЦО", text: "Совершение на территории государственных объектов либо в их непосредственной близости действий, выражающихся в агрессивном, провокационном, унижающем честь и достоинство поведении, нарушающем установленный режим работы и безопасность объекта — штраф 30 000 рублей." },
-      { cat: "КоАП ЦО", code: "Ст. 2.4 КоАП ЦО", text: "Заведомо ложный вызов сотрудников правоохранительных органов, МЧС либо медицинских служб — штраф 50 000 рублей." },
-      { cat: "КоАП ЦО", code: "Ст. 3.1-3.2 КоАП ЦО", text: "Нарушение ПДД пешеходом/пассажиром с созданием помех — штраф от 15 000 до 100 000 руб. Умышленное создание помех движению ТС — штраф 20 000 руб." },
-      { cat: "КоАП ЦО", code: "Ст. 4.1-4.4 КоАП ЦО", text: "4.1 Выезд на встречную полосу — штраф 60 000 руб. и изъятие ВУ. 4.2 Движение по обочинам/тротуарам/полям — штраф 30 000 руб. 4.3 Неподача поворотника — штраф 5 000 руб. 4.4 Дрифт в населенных пунктах — штраф 15 000–100 000 руб." },
-      { cat: "КоАП ЦО", code: "Ст. 5.1-5.2 КоАП ЦО", text: "5.1 Превышение скорости в населённом пункте — штраф 30 000 руб. 5.2 Превышение скорости вне города — штраф 15 000 руб." },
-      { cat: "КоАП ЦО", code: "Ст. 6.1-6.3 КоАП ЦО", text: "6.1 Нарушение правил остановки/стоянки — штраф 40 000 руб. и эвакуация. 6.2 Непредоставление преимущества спецтранспорту с маячками — штраф 50 000 руб. и изъятие ВУ. 6.3 Самовольное покидание места ДТП — штраф 100 000 руб." },
-      { cat: "КоАП ЦО", code: "Ст. 7.1-7.2 КоАП ЦО", text: "7.1 Переход дороги в неположенном месте — штраф 15 000 руб. 7.2 Наезд на пешехода (лёгкий вред здоровью) — штраф 250 000 руб. и изъятие ВУ." },
-      { cat: "КоАП ЦО", code: "Ст. 8.1-9.1 КоАП ЦО", text: "8.1 Езда без ремня безопасности — штраф 50 000 руб. 8.2 Непристёгнутый пассажир — штраф 20 000 руб. 9.1 Отсутствие номерных знаков — штраф 10 000 руб. и эвакуация." },
-
-      // --- УК ЦО ---
-      { cat: "УК ЦО", code: "Ст. 1.1-1.4 УК ЦО", text: "1.1 Безоружное нападение на гражданское лицо (3 ур. розыска). 1.2 Вооружённое нападение на гражданское лицо (5 ур. розыска + изъятие лицензии). 1.3 Лёгкий вред здоровью (1 ур.). 1.4 Убийство гражданского лица (6 ур., кроме самообороны с доказательствами)." },
-      { cat: "УК ЦО", code: "Ст. 1.5-1.8 УК ЦО", text: "1.5.1 ДТП по неосторожности с матер. ущербом (1 ур., штраф 20 000 руб., изъятие ВУ, взыскание ущерба в суде). 1.5.2 Наезд на пешехода с лёгкими/средними увечьями (3 ур. + ВУ). 1.5.3 Тяжкие увечья (4 ур. + ВУ). 1.5.4 Смерть пешехода (6 ур. + ВУ). 1.8 Дрифт с вредом здоровью/смертью (6 ур. + ВУ)." },
-      { cat: "УК ЦО", code: "Ст. 2.1-2.3 УК ЦО", text: "Преступления против жизни и здоровья гослиц: 2.1 Безоружное нападение (4 ур.). 2.2 Вооружённое нападение (5 ур. + лицензия). 2.3 Убийство гослица (6 ур.)." },
-      { cat: "УК ЦО", code: "Ст. 3.1-3.2 УК ЦО", text: "Похищение: 3.1 Незаконное лишение свободы гражданского лица (5 ур. розыска). 3.2 Похищение государственного лица (6 ур. розыска)." },
-      { cat: "УК ЦО", code: "Ст. 4.1-4.6 УК ЦО", text: "4.1 Угрозы госслужащему/гражданину (3 ур.). 4.2 Препятствие кортежу (3 ур.). 4.3 Препятствие конвою (3 ур.). 4.4 Нападение на конвой (6 ур.). 4.5 Преследование служебного авто в погоне (4 ур.). 4.6 Провокация госслужащего (2 ур.)." },
-      { cat: "УК ЦО", code: "Ст. 5.1-5.6 УК ЦО", text: "5.1 Дача ложных показаний при расследовании (3-5 ур.). 5.2 Клевета (2-4 ур.). 5.3.1 Обман госслужащего (2 ур.). 5.3.2 Поддельные документы (5 ур. + штраф 20 000). 5.4.1-5.4.2 Оскорбление гражданина (2/1 ур.). 5.5.1-5.5.2 Оскорбление госслужащего (3/2 ур.). 5.6 Помеха журналистам (3 ур. + штраф 1 млн)." },
-      { cat: "УК ЦО", code: "Ст. 6.1-6.2 УК ЦО", text: "6.1 Соучастие в преступлении (наказание по основному составу). 6.2 Укрывательство преступника или помеха аресту (3 ур. розыска)." },
-      { cat: "УК ЦО", code: "Ст. 7.1-7.9 УК ЦО", text: "Преступления против правосудия: 7.1 Побег/скрытие от задержания (3 ур.). 7.2 Злостная неуплата штрафа (2 ур. + 4х штраф). 7.3 Невыполнение законных требований сотрудника (3 ур.). 7.4 Вмешательство в деятельность суда/прокуратуры (4 ур.). 7.5 Фальсификация доказательств (4 ур.). 7.6 Срыв заседания суда (3 ур.). 7.7 Игнорирование решения суда (6 ур.). 7.8 Ложные показания в суде/прокуратуре (4 ур.). 7.9 Недопуск адвоката в КПЗ (3 ур.)." },
-      { cat: "УК ЦО", code: "Ст. 8.1-9.3 УК ЦО", text: "8.1 Ограбление гражданских (4 ур.). 8.2 Ограбление гослиц (5 ур.). 8.3 Ограбление банка (6 ур.). 8.4 Кража госимущества (6 ур.). 8.5 Продажа госимущества госслужащим (6 ур.). 8.6 Вымогательство (6 ур.). 9.1 Вред гражданскому имуществу (1 ур., штраф 5 000). 9.2 Вред госимуществу (2 ур., штраф 25 000)." },
-      { cat: "УК ЦО", code: "Ст. 10.1-11.4 УК ЦО", text: "Оружие и боеприпасы: 10.1 Открытое ношение оружия в руках (3 ур. + лицензия). 10.2 Изготовление (3 ур.). 10.3 Незаконное приобретение (4 ур.). 10.4 Хранение без лицензии (3 ур.). 10.5 Продажа (6 ур. + лицензия). 11.1-11.4 Незаконный оборот патронов/материалов (3-4 ур.)." },
-      { cat: "УК ЦО", code: "Ст. 12.1-12.5 УК ЦО", text: "Наркотики (Укроп): 12.1 Хранение (5 ур.). 12.2 Реклама (5 ур.). 12.3 Продажа (6 ур.). 12.4 Приобретение/употребление (4 ур.). 12.5 Покупка/продажа/употребление гослицом (6 ур. и увольнение)." },
-      { cat: "УК ЦО", code: "Ст. 13.1-16.3 УК ЦО", text: "13.1 Раскрытие сотрудника ФСБ (3 ур.). 13.2 Захват власти (6 ур.). 13.3 Разглашение гостайны/госизмена (6 ур.). 13.5 Выдача себя за сотрудника МВД/МО (4 ур.). 13.6 Срыв спецоперации (5 ур.). 15.1 Хулиганство (2 ур., штраф 200 000)." },
-      { cat: "УК ЦО", code: "Ст. 17.1-18.2 УК ЦО", text: "17.1 Проникновение на ТСР (3 предупреждения по 5 сек -> 5 ур.). 17.2 Военная база (-> 6 ур.). 17.3 Объект ФСБ (-> 4 ур.). 17.4 Закрытый объект (-> 3 ур.). 18.1 Помеха строю (2 ур.). 18.2 Маска на гос. объекте после предупреждения (3 ур. + штраф 10 000)." },
-      { cat: "УК ЦО", code: "Ст. 21.1-24.2 УК ЦО", text: "21.1-21.3 Получение взятки (4-6 ур. + запрет должностей). 22.1-22.2 Дача взятки (4-6 ур.). 24.1 Превышение должностных полномочий: незаконное задержание, обыск, ложные рапорты, применение силы/оружия без оснований (4 ур. розыска + лишение права занимать должности). 24.2 То же с тяжкими последствиями/оружием/группой (5-6 ур. + запрет должностей)." },
-
-      // --- ФП ЦО ---
-      { cat: "ФП ЦО", code: "П. 1.1-1.5 ФП ЦО", text: "1.1 Запрещено нарушать любой документ законодательства, Конституции и устава гос. структуры (Понижение | Выговор | Увольнение). 1.2 Использование служебного положения в личных целях (Понижение | Увольнение). 1.3 Неявка в строй (Выговор | Штраф). 1.4 Прогул рабочего дня / личные дела в рабочее время, искл. СТО (Выговор | Понижение | Штраф). 1.5 Хранение/использование наркотиков, краденых патронов/оружия (Понижение | Увольнение | Выговор)." },
-      { cat: "ФП ЦО", code: "П. 1.6-1.10 ФП ЦО", text: "1.6 Незаконная выдача розыска (Понижение | Увольнение). 1.7 Вынос из реестра розыска без причины (Понижение | Увольнение). 1.8 Неподчинение высшему по званию в рамках закона (Выговор | Понижение | Увольнение). 1.9 Алкоголь в рабочее время (Выговор | Штраф). 1.10 Процессуальные действия в отношении неприкосновенных лиц (Понижение | Увольнение | Выговор)." },
-      { cat: "ФП ЦО", code: "П. 1.11-1.18 ФП ЦО", text: "1.11 Связь с криминалом (Увольнение). 1.12 Нахождение на территории Армии без разрешения (Выговор | Понижение | Штраф). 1.14 Нецензурная брань (Выговор | Понижение | Штраф). 1.15 Нарушение субординации, общение на 'ты', игнорирование (Выговор | Понижение | Штраф). 1.16 Обман начальства (Понижение | Штраф). 1.17 Бездействие при ЧС (Понижение | Штраф). 1.18 Насильственные действия в сторону госсотрудника (Понижение | Штраф | Увольнение)." },
-      { cat: "ФП ЦО", code: "П. 1.19-1.26 ФП ЦО", text: "1.19 Пренебрежение или ненадлежащее исполнение должностных обязанностей (Выговор | Понижение). 1.20 Неадекватные аксессуары (Выговор | Штраф). 1.21 Оскорбление кого-либо (Выговор | Понижение | Штраф). 1.22 Беспричинная стрельба (Понижение | Выговор | Штраф). 1.23 Использование служебного ТС в личных целях (Понижение | Выговор | Штраф). 1.24 Запрет ФСБ самолично вести дела против частично неприкосновенных (передача в прокуратуру). 1.26 Нахождение госслужащего в федеральном розыске (Понижение 1-3 ур. | Увольнение 4-6 ур.)." },
-      { cat: "ФП ЦО", code: "П. 1.27-1.40 ФП ЦО", text: "1.27 Нарушение регламента личного ТС (Штраф | Выговор | Увольнение). 1.28 Отказ от внеплановой проверки. 1.29 Запрет обыска/слежки за ФСБ (искл. Прокуратура, Губернатор). 1.32 Введение в заблуждение ФСБ. 1.34/1.40 Раскрытие сотрудника ФСБ/ГУСН. 1.37 Запрет ношения маски в рабочее время (кроме спецподразделений). 1.39 Игнорирование рации департамента." },
-
-      // --- ФЗ О Прокуратуре ---
-      { cat: "ФЗ О Прокуратуре", code: "Ст. 1-5 ФЗ «О Прокуратуре ЦО»", text: "Прокуратура ЦО осуществляет надзор за соблюдением Конституции и законов. Законные требования прокурора обязательны для исполнения всеми органами и гражданами (ст. 5.1). Лица обязаны являться по вызову прокурора и давать объяснения (ст. 5.2)." },
-      { cat: "ФЗ О Прокуратуре", code: "Ст. 14 ФЗ «О Прокуратуре ЦО»", text: "Полномочия Генпрокурора и Зам. Генпрокурора: контроль за госслужащими, назначение внеплановых проверок, приостановление незаконного задержания (увиденного лично), истребование видеозаписей и материалов Актом Прокурорского Надзора, издание обязательных приказов/распоряжений, увольнение сотрудников на основании решения суда, привлечение к дисциплинарным взысканиям по результатам проверки." },
-      { cat: "ФЗ О Прокуратуре", code: "Ст. 15-19 (Раздел V) ФЗ «О Прокуратуре ЦО»", text: "Акты прокурорского реагирования: Ст. 15 Представление (устранение нарушений). Ст. 16 Протест (отмена незаконного решения, приостанавливает действие акта). Ст. 17 Постановление (возбуждение уголовных, административных дел, дисциплинарных мер). Ст. 18 Предписание (немедленное устранение нарушения). Ст. 19 Предупреждение (профилактическая мера)." },
-      { cat: "ФЗ О Прокуратуре", code: "Ст. 28.3 п. 7 ФЗ «О Прокуратуре ЦО»", text: "При общении и оформлении документов запрещается использовать только аббревиатуры законодательных актов — необходимо хотя бы один раз полностью назвать законодательный акт, на который ссылается прокурор." },
-
-      // --- СПК ЦО ---
-      { cat: "СПК ЦО", code: "Ст. 7 СПК ЦО", text: "Презумпция невиновности: обвиняемый считается невиновным, пока его виновность не доказана. Бремя доказывания лежит на стороне обвинения. Все неустранимые сомнения толкуются в пользу обвиняемого." },
-      { cat: "СПК ЦО", code: "Ст. 11-18 СПК ЦО", text: "Порядок рассмотрения сообщений о преступлении: срок проверки — до 3 суток (продление до 5 суток Генпрокуратурой). Решения: 1) возбуждение дела (ст. 17); 2) отказ в возбуждении дела при отсутствии события/состава преступления (ст. 18, 21); 3) передача по подследственности. Копия постановления об отказе направляется заявителю с разъяснением права обжалования." },
-      { cat: "СПК ЦО", code: "Ст. 25 СПК ЦО", text: "Основания для отказа в принятии заявления: не подсудно, не на русском языке, оскорбления/мат, подача уголовного иска без предварительного обращения в Прокуратуру ЦО (искл. Начальник УСБ, Зам/Директор ФСБ), отсутствие/недостаточность доказательств, фото вместо видео, монтаж/редактирование, отсутствие маркировки даты и времени (/time) для гражданских, отключенная боди-камера для госслужащих, видео более 3 минут без тайм-кодов." },
-      { cat: "СПК ЦО", code: "Ст. 63-66 СПК ЦО", text: "Меры пресечения и процессуального воздействия: заключение под стражу, запрет определенных действий, временное отстранение от должности (ст. 66 — с согласия Генпрокуратуры), обязательство о явке (ст. 67), привод (ст. 68), назначение служебной проверки." },
-
-      // --- Конституция и ТК ЦО ---
-      { cat: "Конституция ЦО", code: "Ст. 22, 31, 61 Конституции ЦО", text: "Ст. 22.1 Госорганы обязаны рассмотреть обращение и дать мотивированный ответ. Ст. 31.1 Право на возмещение имущественного и морального вреда. Ст. 61 Иерархия НПА: Конституция -> Кодексы -> ФЗ -> Законы -> ФП -> Акты Старшего судьи -> Акты Губернатора/Суда -> Акты Генпрокуратуры -> Уставы." },
-      { cat: "ТК ЦО", code: "Ст. 5, 7, 8 ТК ЦО", text: "Ст. 5.8-5.9 Работодатель обязан хранить доказательства на выговор/увольнение 5 рабочих дней и предоставить в суд в течение 24 часов. Ст. 7 Дисциплинарные взыскания: замечание, выговор, увольнение (срок назначения — 3 суток). Ст. 8 Причины в трудовой: П. [номер] ВУ; Ст. [номер] ФП; РС № [номер]; Ст. №6 ТК." }
+    // EMPLOYEES DEFAULT DATA
+    let employees = JSON.parse(localStorage.getItem('rrp_employees')) || [
+      { section: 'gen', num: 1, eng: 'Kiryusha_Lovely', rus: 'Кирюша Ловели', role: 'Генеральный прокурор', rank: 'Государственный советник юстиции 1 класса', vk: 'https://vk.com/id1' },
+      { section: 'gen', num: 2, eng: 'Deputy_Gen', rus: 'Заместитель Генпрокурора', role: 'Заместитель генерального прокурора', rank: 'Государственный советник юстиции 2 класса', vk: 'https://vk.com/id2' },
+      { section: 'prosecution', num: 3, eng: 'Oleja_Dynasty', rus: 'Олежа Династи', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id3' },
+      { section: 'prosecution', num: 4, eng: 'Blake_Grasmin', rus: 'Блэйк Грасмин', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id4' },
+      { section: 'prosecution', num: 5, eng: 'Maksim_Lorenzov', rus: 'Максим Лорензов', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id5' },
+      { section: 'prosecution', num: 6, eng: 'Zero_Kurogane', rus: 'Зеро Курегэйн', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id6' },
+      { section: 'prosecution', num: 7, eng: 'Scott_Ale', rus: 'Скотт Але', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id7' },
+      { section: 'prosecution', num: 8, eng: 'Vetmo_Donk', rus: 'Ветмо Донк', role: 'Прокурор', rank: 'Советник юстиции', vk: 'https://vk.com/id8' },
+      { section: 'prosecution', num: 9, eng: 'Maks_Chikarev', rus: 'Макс Чикерев', role: 'Академист', rank: 'Академист прокуратуры', vk: 'https://vk.com/id9' }
     ];
 
-    // =========================================================================
-    // 2. ВШИТЫЕ ШАБЛОНЫ BB-КОДОВ ПОЛЬЗОВАТЕЛЯ
-    // =========================================================================
-    const DEFAULT_TEMPLATES = {
-      prosecutor_decree: `[CENTER][IMG width="149px" alt="Emblem_of_the_Office_of_the_Prosecutor_General_of_Russia.svg"]https://upload.wikimedia.org/wikipedia/commons/7/7a/Emblem_of_the_Office_of_the_Prosecutor_General_of_Russia.svg[/IMG]
+    // LAWS & TEMPLATES DATA
+    const DEFAULT_LAWS = [
+      { cat: "УК ЦО", code: "Ст. 1.4 УК ЦО", text: "Убийство гражданского лица. Присуждается 6 уровень розыска." },
+      { cat: "КоАП ЦО", code: "Ст. 1.1 КоАП ЦО", text: "Употребление нецензурной лексики в общественном месте — штраф 15 000 рублей." },
+      { cat: "ФП ЦО", code: "П. 1.1 ФП ЦО", text: "Запрещено нарушать любой документ законодательства, Конституции и устава (Понижение | Выговор | Увольнение)." },
+      { cat: "ФЗ О Прокуратуре", code: "Ст. 5.1 ФЗ о Прокуратуре", text: "Законные требования прокурора обязательны для исполнения всеми органами и гражданами." },
+      { cat: "СПК ЦО", code: "Ст. 25 СПК ЦО", text: "Основания для отказа в принятии искового заявления или жалобы." }
+    ];
 
-
-Протест/постановление/предписание Генеральной прокуратуры № [Номер]
-Генеральная прокуратура Центрального Округа "[Должность]" "[Имя Фамилия]"
-Суть приказа/представления/протеста/постановления/предписания/предупреждения:
-1. [Пункт 1 с указанием полных названий законов и статей]
-2. [Пункт 2]
-3. [Пункт 3]
-
-Подпись: [Инициалы/Подпись]
-Дата: [Дата]
-Должность: [Должность][/CENTER]`,
-
-      prosecutor_response: `[CENTER][CENTER][FONT=courier new][IMG width="389px" alt="VOErJ5C.png"]https://i.imgur.com/VOErJ5C.png[/IMG][/CENTER]
-[FONT=courier new]
-[B]ГЕНЕРАЛЬНАЯ ПРОКУРАТУРА ЦЕНТРАЛЬНОГО ОКРУГА
-
-ул. Центральная, д. 19, Центральный округ
-Тел.: +0 (000) 123-45-67[/B][/FONT][/CENTER]
-[HR][/HR]
-[CENTER][FONT=courier new]
-От [Должность] «[Имя Фамилия]»
-Гражданину Центрального Округа
-
-[B]Уважаемый гражданин![/B]
-
-Генеральная Прокуратура Центрального округа, рассмотрев Ваше обращение №[Номер] от [Дата], сообщает следующее.
-
-[B]УСТАНОВИЛ:[/B]
-[Подробное юридическое обоснование: что проверено, какие обстоятельства установлены, ссылки на полные названия законов и конкретные статьи]
-
-[B]ПОСТАНОВИЛ:[/B]
-1. На основании изложенного, в удовлетворении Вашего обращения [COLOR=rgb(255, 0, 0)]отказать[/COLOR] (либо [COLOR=rgb(0, 255, 0)]удовлетворить[/COLOR] и принять меры).
-2. [Дополнительные пункты при необходимости: разъяснение причин, направление материалов и т.п.]
-
-Данное решение может быть обжаловано в установленном законом порядке (в соответствии со статьёй 10 Судебно-процессуального кодекса Центрального округа).
-
-С уважением,
-
-[Должность]
-[Фамилия И.О.]
-[/FONT]
-[B][FONT=courier new]от [Дата прописью] года[/FONT][/B][/CENTER]`,
-
-      lawsuit: `[CENTER]В Окружной суд Центрального Округа
-От гражданина/Прокурора Центрального Округа "[Имя Фамилия]"
-Электронная почта (Discord): [Discord]
-
-
-Исковое заявление № [Номер]
-Ответчик/обвиняемый : "[Имя Фамилия ответчика]"
-Свидетели по делу : "[Свидетели или Отсутствуют]"
-Материалы дела (Доказательства в виде видеофиксации): [URL='ссылка']тык[/URL]
-
-Причина вашего искового заявления – [Подробное описание ситуации от и до с указанием времени, места, действий ответчика и нарушенных статей законодательства Центрального Округа].
-
-Согласно вышеизложенному в соответствии с действующим законодательством Прошу суд:
-1. [Требование 1]
-2. [Требование 2]
-
-Дата: [Дата] Подпись: [Подпись][/CENTER]`,
-
-      motion: `[CENTER]В Окружной суд Центрального Округа
-От гражданина/прокурора Центрального округа "[Имя Фамилия]"
-Электронная почта (Discord): [Discord]
-
-[B]ХОДАТАЙСТВО[/B]
-
-Прошу суд в лице окружного судьи, ведущего дело №[Номер], "[Имя Фамилия судьи]"
-[Суть ходатайства: о приобщении доказательств, вызове свидетелей, переносе заседания и т.д. со ссылкой на статьи Судебно-процессуального кодекса Центрального Округа].
-
-[Дата]
-Гражданина/Прокурора "[Имя Фамилия]", Подпись: [Подпись][/CENTER]`
-    };
-
-    // =========================================================================
-    // 3. STATE MANAGEMENT (LOCALSTORAGE)
-    // =========================================================================
     let laws = JSON.parse(localStorage.getItem('rrp_laws')) || DEFAULT_LAWS;
-    let templates = JSON.parse(localStorage.getItem('rrp_templates')) || DEFAULT_TEMPLATES;
+    let templates = JSON.parse(localStorage.getItem('rrp_templates')) || {
+      prosecutor_decree: "[CENTER]Постановление Генеральной прокуратуры № [Номер]\nГенеральный прокурор: [Имя Фамилия]\n1. [Суть приказа]\nДата: [Дата][/CENTER]",
+      prosecutor_response: "[CENTER]Генеральная прокуратура ЦО\nОтвет на обращение №[Номер]\nУСТАНОВИЛ: ...\nПОСТАНОВИЛ: Отказать / Удовлетворить.[/CENTER]",
+      lawsuit: "[CENTER]Исковое заявление в Окружной суд №[Номер]\nИстец: [Имя Фамилия][/CENTER]",
+      motion: "[CENTER]Ходатайство в суд №[Номер]\nПрошу суд...[/CENTER]"
+    };
     let historyList = JSON.parse(localStorage.getItem('rrp_history')) || [];
     let profile = JSON.parse(localStorage.getItem('rrp_profile')) || {
-      name: 'Кирюша Ловели',
-      initials: 'Ловели К.А.',
-      role: 'Генеральный Прокурор Центрального Округа',
-      discord: 'yatochhka',
-      apiKey: '',
-      model: 'gemini-2.5-flash'
+      name: 'Кирюша Ловели', initials: 'Ловели К.А.', role: 'Генеральный Прокурор Центрального Округа', discord: 'yatochhka', apiKey: '', model: 'gemini-2.5-flash'
     };
 
-    // =========================================================================
-    // 4. INITIALIZATION
-    // =========================================================================
     window.addEventListener('DOMContentLoaded', () => {
-      // Set default today date
       const now = new Date();
-      const dd = String(now.getDate()).padStart(2, '0');
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const yyyy = now.getFullYear();
-      document.getElementById('doc-date').value = `${dd}.${mm}.${yyyy}`;
-
+      document.getElementById('doc-date').value = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
       loadProfileUI();
       loadTemplatesUI();
+      renderEmployees();
       renderLaws();
       renderHistory();
-      checkApiWarning();
     });
 
     function switchTab(tabName) {
-      ['generator', 'laws', 'templates', 'history', 'settings'].forEach(t => {
+      ['generator', 'employees', 'laws', 'templates', 'history', 'settings'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add('hidden');
         document.getElementById(`nav-${t}`).classList.remove('tab-active', 'text-white');
         document.getElementById(`nav-${t}`).classList.add('text-slate-400');
@@ -548,14 +486,125 @@
       const toast = document.getElementById('toast');
       toast.textContent = msg;
       toast.classList.remove('translate-y-20', 'opacity-0');
-      setTimeout(() => {
-        toast.classList.add('translate-y-20', 'opacity-0');
-      }, 3000);
+      setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
     }
 
-    // =========================================================================
-    // 5. PROFILE & SETTINGS
-    // =========================================================================
+    // POGONI GENERATOR BASED ON RANK
+    function generatePogoniHTML(rank) {
+      let stars = 1;
+      if (rank.includes('1 класса')) stars = 3;
+      else if (rank.includes('2 класса')) stars = 2;
+      else if (rank.includes('3 класса')) stars = 1;
+      else if (rank.includes('Советник')) stars = 3;
+      else if (rank.includes('Младший')) stars = 1;
+      else if (rank.includes('Академист')) stars = 1;
+
+      let starsHtml = '';
+      for (let i = 0; i < stars; i++) starsHtml += '<span class="star">★</span>';
+
+      return `
+        <div class="pogon-box mx-auto">
+          <div class="flex gap-0.5 justify-center">${starsHtml}</div>
+          <div class="w-full h-1 bg-amber-500/80 rounded-full mt-0.5"></div>
+        </div>
+      `;
+    }
+
+    // EMPLOYEES MANAGEMENT
+    function renderEmployees() {
+      const genTbody = document.getElementById('gen-prosecutors-tbody');
+      const prosTbody = document.getElementById('prosecutors-tbody');
+
+      const genList = employees.filter(e => e.section === 'gen');
+      const prosList = employees.filter(e => e.section === 'prosecution');
+
+      genTbody.innerHTML = genList.map((e, idx) => employeeRowHTML(e, employees.indexOf(e))).join('');
+      prosTbody.innerHTML = prosList.map((e, idx) => employeeRowHTML(e, employees.indexOf(e))).join('');
+    }
+
+    function employeeRowHTML(e, realIdx) {
+      const pogon = generatePogoniHTML(e.rank);
+      const vkLink = e.vk.startsWith('http') ? `<a href="${e.vk}" target="_blank" class="text-blue-400 underline">тык</a>` : e.vk;
+      return `
+        <tr class="hover:bg-slate-900/60 transition">
+          <td class="p-3 text-center font-bold text-slate-400">${e.num}</td>
+          <td class="p-3 font-mono text-slate-300">${escapeHtml(e.eng)}</td>
+          <td class="p-3 font-semibold text-white">${escapeHtml(e.rus)}</td>
+          <td class="p-3 text-blue-300">${escapeHtml(e.role)}</td>
+          <td class="p-3 text-slate-300">${escapeHtml(e.rank)}</td>
+          <td class="p-3 text-center">${pogon}</td>
+          <td class="p-3 text-center">${vkLink}</td>
+          <td class="p-3 text-right space-x-2">
+            <button onclick="editEmployee(${realIdx})" class="text-xs text-blue-400 hover:text-blue-300">✏️</button>
+            <button onclick="deleteEmployee(${realIdx})" class="text-xs text-rose-400 hover:text-rose-300">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }
+
+    function openEmployeeModal() {
+      document.getElementById('employee-modal-title').textContent = 'Добавить сотрудника';
+      document.getElementById('emp-edit-idx').value = '-1';
+      document.getElementById('emp-section').value = 'prosecution';
+      document.getElementById('emp-number').value = employees.length + 1;
+      document.getElementById('emp-nick-eng').value = '';
+      document.getElementById('emp-nick-rus').value = '';
+      document.getElementById('emp-role').value = 'Прокурор';
+      document.getElementById('emp-rank').value = 'Советник юстиции';
+      document.getElementById('emp-vk').value = 'тык';
+      document.getElementById('employee-modal').classList.remove('hidden');
+    }
+
+    function editEmployee(idx) {
+      const e = employees[idx];
+      document.getElementById('employee-modal-title').textContent = 'Редактировать сотрудника';
+      document.getElementById('emp-edit-idx').value = idx;
+      document.getElementById('emp-section').value = e.section;
+      document.getElementById('emp-number').value = e.num;
+      document.getElementById('emp-nick-eng').value = e.eng;
+      document.getElementById('emp-nick-rus').value = e.rus;
+      document.getElementById('emp-role').value = e.role;
+      document.getElementById('emp-rank').value = e.rank;
+      document.getElementById('emp-vk').value = e.vk;
+      document.getElementById('employee-modal').classList.remove('hidden');
+    }
+
+    function closeEmployeeModal() { document.getElementById('employee-modal').classList.add('hidden'); }
+
+    function saveEmployeeData() {
+      const idx = parseInt(document.getElementById('emp-edit-idx').value);
+      const data = {
+        section: document.getElementById('emp-section').value,
+        num: parseInt(document.getElementById('emp-number').value) || 1,
+        eng: document.getElementById('emp-nick-eng').value.trim(),
+        rus: document.getElementById('emp-nick-rus').value.trim(),
+        role: document.getElementById('emp-role').value.trim(),
+        rank: document.getElementById('emp-rank').value,
+        vk: document.getElementById('emp-vk').value.trim()
+      };
+
+      if (idx > -1) {
+        employees[idx] = data;
+      } else {
+        employees.push(data);
+      }
+
+      localStorage.setItem('rrp_employees', JSON.stringify(employees));
+      renderEmployees();
+      closeEmployeeModal();
+      showToast('✅ Список сотрудников обновлен!');
+    }
+
+    function deleteEmployee(idx) {
+      if (confirm('Удалить сотрудника из реестра?')) {
+        employees.splice(idx, 1);
+        localStorage.setItem('rrp_employees', JSON.stringify(employees));
+        renderEmployees();
+        showToast('Сотрудник удален');
+      }
+    }
+
+    // PROFILE & SETTINGS
     function loadProfileUI() {
       document.getElementById('prof-name').value = profile.name || '';
       document.getElementById('prof-initials').value = profile.initials || '';
@@ -576,25 +625,12 @@
       profile.discord = document.getElementById('prof-discord').value.trim();
       profile.apiKey = document.getElementById('api-key-input').value.trim();
       profile.model = document.getElementById('api-model-select').value;
-
       localStorage.setItem('rrp_profile', JSON.stringify(profile));
       loadProfileUI();
-      checkApiWarning();
-      showToast('✅ Настройки и профиль успешно сохранены!');
+      showToast('✅ Профиль и настройки сохранены!');
     }
 
-    function checkApiWarning() {
-      const warn = document.getElementById('api-warning');
-      if (!profile.apiKey) {
-        warn.classList.remove('hidden');
-      } else {
-        warn.classList.add('hidden');
-      }
-    }
-
-    // =========================================================================
-    // 6. TEMPLATES MANAGEMENT
-    // =========================================================================
+    // TEMPLATES & LAWS
     function loadTemplatesUI() {
       document.getElementById('tpl-prosecutor_decree').value = templates.prosecutor_decree;
       document.getElementById('tpl-prosecutor_response').value = templates.prosecutor_response;
@@ -608,305 +644,119 @@
       templates.lawsuit = document.getElementById('tpl-lawsuit').value;
       templates.motion = document.getElementById('tpl-motion').value;
       localStorage.setItem('rrp_templates', JSON.stringify(templates));
-      showToast('💾 Шаблоны BB-кодов сохранены!');
+      showToast('💾 Шаблоны сохранены!');
     }
 
     function updateDocHint() {
-      const val = document.getElementById('doc-type').value;
       const hints = {
-        prosecutor_decree: 'Оформляется с гербом Генеральной прокуратуры ЦО и нумерованными пунктами приказа/постановления.',
-        prosecutor_response: 'Официальный ответ гражданину с шапкой прокуратуры, разделами УСТАНОВИЛ / ПОСТАНОВИЛ и мотивировкой отказа или принятия.',
-        lawsuit: 'Исковое заявление в Окружной суд Центрального Округа (от гражданина или прокурора).',
-        motion: 'Официальное ходатайство в суд о приобщении доказательств, вызове свидетелей и др.',
-        custom: 'Свободный процессуальный документ (рапорт, представление, обвинительный акт) в строгом BB-формате.'
+        prosecutor_decree: 'Оформляется с гербом и пунктами приказа/постановления.',
+        prosecutor_response: 'Официальный ответ с шапкой, УСТАНОВИЛ / ПОСТАНОВИЛ и отказом/одобрением.',
+        lawsuit: 'Исковое заявление в Окружной суд.',
+        motion: 'Ходатайство в Окружной суд.',
+        custom: 'Свободный документ в BB-формате.'
       };
-      document.getElementById('doc-hint').textContent = hints[val] || '';
+      document.getElementById('doc-hint').textContent = hints[document.getElementById('doc-type').value] || '';
     }
 
     function fillExample() {
-      const type = document.getElementById('doc-type').value;
-      if (type === 'prosecutor_response') {
-        document.getElementById('doc-number').value = '2105';
-        document.getElementById('situation-input').value = 'Гражданин подал жалобу на сотрудника ГУВД Ивана Петрова за якобы незаконное задержание, но к обращению приложил только скриншоты из КПЗ без видеозаписи и без /time. Нужно отказать в удовлетворении обращения, сославшись на недостаточность доказательств и СПК ЦО.';
-      } else if (type === 'prosecutor_decree') {
-        document.getElementById('doc-number').value = '148';
-        document.getElementById('situation-input').value = 'В ходе прокурорского надзора выявлено, что сотрудник ГУВД Максим Сидоров в рабочее время находился на автобазаре в форме и оскорблял гражданских. Возбудить дисциплинарное производство, выдать выговор в личное дело и обязать начальника ГУВД отчитаться в течение 24 часов.';
-      } else if (type === 'lawsuit') {
-        document.getElementById('doc-number').value = '892';
-        document.getElementById('situation-input').value = 'Сотрудник ФСБ без причины открыл огонь по моему автомобилю у здания Правительства, повредил машину на 1 500 000 рублей и выдал розыск по 7.3 УК без законных требований. Прошу суд уволить сотрудника, снять розыск и взыскать 1.5 млн за ремонт + 1 млн морального вреда.';
-      } else {
-        document.getElementById('doc-number').value = '892';
-        document.getElementById('situation-input').value = 'Прошу окружного судью приобщить к материалам уголовного дела №892 дополнительную видеозапись с боди-камеры прокурора, подтверждающую факт получения взятки ответчиком.';
-      }
+      document.getElementById('doc-number').value = '104';
+      document.getElementById('situation-input').value = 'Постановление о присвоении специальных классных чинов прокурорским работникам прокуратуры Центрального Округа.';
     }
 
-    // =========================================================================
-    // 7. LAWS DATABASE UI & BULK IMPORT
-    // =========================================================================
     function renderLaws() {
       const query = document.getElementById('law-search').value.toLowerCase();
       const catFilter = document.getElementById('law-category-filter').value;
-      const container = document.getElementById('laws-container');
-
-      const filtered = laws.filter(l => {
-        const matchCat = catFilter === 'ALL' || l.cat === catFilter;
-        const matchText = l.code.toLowerCase().includes(query) || l.text.toLowerCase().includes(query) || l.cat.toLowerCase().includes(query);
-        return matchCat && matchText;
-      });
-
-      document.getElementById('laws-stats').textContent = `Показано статей: ${filtered.length} из ${laws.length}`;
-
-      container.innerHTML = filtered.map((law, idx) => `
-        <div class="bg-slate-950 border border-slate-800/90 rounded-lg p-3.5 hover:border-slate-700 transition">
-          <div class="flex items-center justify-between gap-2 mb-1">
-            <div class="flex items-center gap-2">
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800/50">${escapeHtml(law.cat)}</span>
-              <span class="text-sm font-bold text-white">${escapeHtml(law.code)}</span>
-            </div>
-            <button onclick="deleteLaw(${laws.indexOf(law)})" class="text-xs text-slate-500 hover:text-rose-400" title="Удалить статью">🗑️</button>
+      const filtered = laws.filter(l => (catFilter === 'ALL' || l.cat === catFilter) && (l.code.toLowerCase().includes(query) || l.text.toLowerCase().includes(query)));
+      document.getElementById('laws-stats').textContent = `Показано статей: ${filtered.length}`;
+      document.getElementById('laws-container').innerHTML = filtered.map(l => `
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">${escapeHtml(l.cat)}</span>
+            <span class="text-sm font-bold text-white">${escapeHtml(l.code)}</span>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(law.text)}</p>
+          <p class="text-xs text-slate-300">${escapeHtml(l.text)}</p>
         </div>
       `).join('');
     }
 
-    function deleteLaw(realIndex) {
-      if (realIndex > -1) {
-        laws.splice(realIndex, 1);
-        localStorage.setItem('rrp_laws', JSON.stringify(laws));
-        renderLaws();
-        showToast('Статья удалена из базы');
-      }
-    }
-
     function resetLawsToDefault() {
-      if (confirm('Вернуть исходную базу законов Центрального Округа?')) {
-        laws = [...DEFAULT_LAWS];
-        localStorage.setItem('rrp_laws', JSON.stringify(laws));
-        renderLaws();
-        showToast('🔄 Законодательная база ЦО восстановлена');
-      }
+      laws = [...DEFAULT_LAWS];
+      localStorage.setItem('rrp_laws', JSON.stringify(laws));
+      renderLaws();
+      showToast('🔄 База сброшена');
     }
 
     function openBulkModal() { document.getElementById('bulk-modal').classList.remove('hidden'); }
     function closeBulkModal() { document.getElementById('bulk-modal').classList.add('hidden'); }
 
     function processBulkLaws() {
-      const cat = document.getElementById('bulk-category').value.trim() || 'Доп. закон ЦО';
+      const cat = document.getElementById('bulk-category').value.trim() || 'Закон';
       const raw = document.getElementById('bulk-text').value.trim();
       if (!raw) return;
-
-      const lines = raw.split(/\n+/).map(s => s.trim()).filter(s => s.length > 5);
-      let added = 0;
-      lines.forEach(line => {
-        const match = line.match(/^((?:Статья|Ст\.|Пункт|П\.|Глава)\s*[\d\.]+)/i);
-        const code = match ? `${match[1]} (${cat})` : `${cat}`;
-        laws.unshift({ cat, code, text: line });
-        added++;
-      });
-
+      raw.split(/\n+/).forEach(line => laws.unshift({ cat, code: cat, text: line }));
       localStorage.setItem('rrp_laws', JSON.stringify(laws));
       renderLaws();
       closeBulkModal();
-      document.getElementById('bulk-text').value = '';
-      showToast(`✅ Добавлено статей: ${added}`);
+      showToast('✅ Законы добавлены');
     }
 
-    // =========================================================================
-    // 8. AI GENERATION ENGINE (GEMINI API)
-    // =========================================================================
+    // AI GENERATOR
     async function generateDocument() {
-      if (!profile.apiKey) {
-        switchTab('settings');
-        showToast('⚠️ Сначала вставь Gemini API-ключ в настройках!');
-        return;
-      }
-
+      if (!profile.apiKey) { switchTab('settings'); showToast('⚠️ Укажите Gemini API-ключ!'); return; }
       const situation = document.getElementById('situation-input').value.trim();
-      if (!situation) {
-        showToast('⚠️ Опиши ситуацию в поле ввода!');
-        return;
-      }
+      if (!situation) { showToast('⚠️ Опишите ситуацию!'); return; }
 
       const docType = document.getElementById('doc-type').value;
-      const docNumber = document.getElementById('doc-number').value.trim() || 'б/н';
-      const docDate = document.getElementById('doc-date').value.trim();
-      const extra = document.getElementById('extra-instructions').value.trim();
-
       const btn = document.getElementById('generate-btn');
-      const originalBtnText = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = `<span class="animate-spin">⏳</span> ИИ изучает законы ЦО и формирует BB-код...`;
+      btn.innerHTML = `⏳ Генерация...`;
 
-      // Prepare compact law context
-      const lawsContext = laws.map(l => `[${l.cat}] ${l.code}: ${l.text}`).join('\n');
-      const selectedTemplate = docType === 'custom'
-        ? 'Сформируй официальный документ в BB-коде форума (с выравниванием [CENTER], жирным шрифтом [B] и строгим юридическим стилем Центрального Округа).'
-        : templates[docType];
-
-      const systemPrompt = `Ты — профессиональный юрист, Генеральный прокурор и судья Центрального Округа на проекте Rodina RP.
-Твоя задача: на основе описания ситуации от пользователя составить идеальный, юридически грамотный процессуальный документ в виде ГОТОВОГО BB-КОДА для форума.
-
-КРИТИЧЕСКИ ВАЖНЫЕ ПРАВИЛА ЦЕНТРАЛЬНОГО ОКРУГА:
-1. Опирайся ТОЛЬКО на предоставленную законодательную базу Центрального Округа (УК ЦО, КоАП ЦО, ФП ЦО, ФЗ «О Прокуратуре Центрального Округа», СПК ЦО, Конституция ЦО, ТК ЦО). Не выдумывай несуществующие статьи РФ!
-2. Согласно ст. 28.3 п. 7 ФЗ «О Прокуратуре Центрального Округа», при первом упоминании любого закона в тексте ОБЯЗАТЕЛЬНО пиши его полное название без сокращений (например: «Федерального постановления Центрального округа», «Уголовного кодекса Центрального округа», «Судебно-процессуального кодекса Центрального округа»), и только затем можно использовать сокращения.
-3. Строго сохраняй все BB-теги ([CENTER], [IMG...], [FONT=...], [B], [HR], [COLOR=...], [URL=...]) из шаблона пользователя! Не ломай разметку.
-4. Автоматически подставь реквизиты автора документа:
-   - Имя Фамилия: ${profile.name || 'Кирюша Ловели'}
-   - Инициалы/Подпись: ${profile.initials || 'Ловели К.А.'}
-   - Должность: ${profile.role || 'Генеральный Прокурор Центрального Округа'}
-   - Discord: ${profile.discord || 'yatochhka'}
-   - Номер документа/обращения: ${docNumber}
-   - Дата: ${docDate}
-5. Если это «Ответ / Отказ на обращение в Прокуратуру ЦО», обязательно заполни блоки [B]УСТАНОВИЛ:[/B] и [B]ПОСТАНОВИЛ:[/B] с подробной юридической аргументацией, ссылками на конкретные статьи СПК ЦО (например, ст. 18, 21, 25 СПК ЦО об отсутствии состава/доказательств/тайм-кодов) или выявленные нарушения, а также покрась слово [COLOR=rgb(255, 0, 0)]отказать[/COLOR] (если отказ) или [COLOR=rgb(0, 255, 0)]удовлетворить[/COLOR] (если одобрено).
-
-ФОРМАТ ОТВЕТА:
-Верни ответ СТРОГО в формате JSON с двумя полями:
-{
-  "bb_code": "полный готовый BB-код документа для вставки на форум",
-  "legal_notes": "краткое пояснение (2-4 пункта), какие именно статьи из базы ЦО были применены и почему"
-}
-
-ЗАКОНОДАТЕЛЬНАЯ БАЗА ЦЕНТРАЛЬНОГО ОКРУГА:
-${lawsContext}`;
-
-      const userPrompt = `Тип документа: ${docType}
-Шаблон BB-кода, который нужно заполнить:
----
-${selectedTemplate}
----
-
-Описание ситуации:
-${situation}
-
-Дополнительные пожелания: ${extra || 'Нет'}`;
+      const prompt = `Ты прокурор Rodina RP ЦО. Сделай BB-код по шаблону для документа №${document.getElementById('doc-number').value}. Ситуация: ${situation}. Автор: ${profile.name}, должность: ${profile.role}. Верни JSON: {"bb_code": "...", "legal_notes": "..."}`;
 
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${profile.model}:generateContent?key=${encodeURIComponent(profile.apiKey)}`;
-        const response = await fetch(url, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${profile.model}:generateContent?key=${encodeURIComponent(profile.apiKey)}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            generationConfig: {
-              temperature: 0.25,
-              responseMimeType: "application/json"
-            }
-          })
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
         });
-
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error?.message || `Ошибка API: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        const parsed = JSON.parse(rawText);
-
-        document.getElementById('bb-output').value = parsed.bb_code || rawText;
-
-        const notesBox = document.getElementById('ai-notes-box');
-        const notesContent = document.getElementById('ai-notes-content');
-        if (parsed.legal_notes) {
-          notesContent.innerText = parsed.legal_notes;
-          notesBox.classList.remove('hidden');
-        } else {
-          notesBox.classList.add('hidden');
-        }
-
-        // Save to history
-        saveToHistory(docType, docNumber, situation, parsed.bb_code || rawText);
-        showToast('✅ Документ успешно сгенерирован!');
-
+        const data = await res.json();
+        const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
+        document.getElementById('bb-output').value = parsed.bb_code;
+        document.getElementById('ai-notes-content').textContent = parsed.legal_notes;
+        document.getElementById('ai-notes-box').classList.remove('hidden');
+        saveToHistory(docType, document.getElementById('doc-number').value, situation, parsed.bb_code);
+        showToast('✅ Готово!');
       } catch (err) {
-        console.error(err);
-        alert('Ошибка при обращении к Gemini API:\n' + err.message + '\n\nПроверь правильность API-ключа во вкладке «Настройки & Профиль».');
+        alert('Ошибка ИИ: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = originalBtnText;
+        btn.innerHTML = '⚡ Сгенерировать готовый BB-код';
       }
     }
 
     function copyBBCode() {
-      const output = document.getElementById('bb-output');
-      if (!output.value.trim()) {
-        showToast('Сначала сгенерируй документ!');
-        return;
-      }
-      navigator.clipboard.writeText(output.value).then(() => {
-        showToast('📋 BB-код скопирован в буфер обмена!');
-      });
+      navigator.clipboard.writeText(document.getElementById('bb-output').value);
+      showToast('📋 Скопировано!');
     }
 
-    // =========================================================================
-    // 9. HISTORY MANAGEMENT
-    // =========================================================================
-    function saveToHistory(type, num, situation, bbCode) {
-      const typeNames = {
-        prosecutor_decree: 'Постановление прокуратуры',
-        prosecutor_response: 'Ответ на обращение',
-        lawsuit: 'Исковое заявление в суд',
-        motion: 'Ходатайство в суд',
-        custom: 'Документ'
-      };
-      historyList.unshift({
-        id: Date.now(),
-        title: `${typeNames[type] || 'Документ'} №${num}`,
-        date: new Date().toLocaleString('ru-RU'),
-        situation: situation.slice(0, 120) + (situation.length > 120 ? '...' : ''),
-        bbCode
-      });
-      if (historyList.length > 30) historyList.pop();
+    function saveToHistory(type, num, sit, code) {
+      historyList.unshift({ title: `Документ №${num}`, date: new Date().toLocaleString(), bbCode: code });
       localStorage.setItem('rrp_history', JSON.stringify(historyList));
       renderHistory();
     }
 
     function renderHistory() {
       document.getElementById('history-count').textContent = historyList.length;
-      const container = document.getElementById('history-list');
-      if (historyList.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500">История пока пуста. Сгенерируй свой первый документ!</p>`;
-        return;
-      }
-      container.innerHTML = historyList.map((item, i) => `
-        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3.5 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div class="text-sm font-bold text-white">${escapeHtml(item.title)} <span class="text-xs font-normal text-slate-500 ml-2">${escapeHtml(item.date)}</span></div>
-            <div class="text-xs text-slate-400 mt-0.5">${escapeHtml(item.situation)}</div>
-          </div>
-          <div class="flex gap-2">
-            <button onclick="restoreFromHistory(${i})" class="px-3 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/30 rounded text-xs font-medium">Открыть</button>
-            <button onclick="copyHistoryItem(${i})" class="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/30 rounded text-xs font-medium">Копировать BB</button>
-          </div>
+      document.getElementById('history-list').innerHTML = historyList.map((h, i) => `
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 flex justify-between items-center text-xs">
+          <div><strong>${h.title}</strong> <span class="text-slate-500 ml-2">${h.date}</span></div>
+          <button onclick="navigator.clipboard.writeText(historyList[${i}].bbCode); showToast('📋 Скопировано');" class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 rounded">Копировать</button>
         </div>
       `).join('');
     }
 
-    function restoreFromHistory(idx) {
-      document.getElementById('bb-output').value = historyList[idx].bbCode;
-      switchTab('generator');
-      showToast('Документ загружен из истории');
-    }
-
-    function copyHistoryItem(idx) {
-      navigator.clipboard.writeText(historyList[idx].bbCode).then(() => {
-        showToast('📋 BB-код скопирован!');
-      });
-    }
-
-    function clearHistory() {
-      if (confirm('Очистить всю историю документов?')) {
-        historyList = [];
-        localStorage.setItem('rrp_history', JSON.stringify(historyList));
-        renderHistory();
-      }
-    }
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-    }
+    function clearHistory() { historyList = []; localStorage.removeItem('rrp_history'); renderHistory(); }
+    function escapeHtml(str) { return String(str).replace(/[&<>"']/g, m => ({ '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' }[m])); }
   </script>
 </body>
 </html>
